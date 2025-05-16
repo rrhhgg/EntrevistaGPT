@@ -25,11 +25,6 @@ def login():
         st.session_state.entrevistador = seleccion
         st.session_state.email = ENTREVISTADORES[seleccion]
         st.session_state.logged_in = True
-        st.session_state.ready = True
-
-    if st.session_state.get("ready"):
-        st.session_state.ready = False
-        st.experimental_rerun()
 
 def logout():
     col1, col2 = st.columns([3, 1])
@@ -40,11 +35,6 @@ def logout():
             st.session_state.logged_in = False
             st.session_state.entrevistador = None
             st.session_state.email = None
-            st.session_state.ready = True
-
-    if st.session_state.get("ready"):
-        st.session_state.ready = False
-        st.experimental_rerun()
 
 def landing():
     mostrar_logo()
@@ -67,18 +57,21 @@ def landing():
         with cols[i % 4]:
             if st.button(nombre, key=clave):
                 st.session_state.rol = clave
-                st.success(f"Has elegido la entrevista para: {nombre}")
-                st.stop()
-        i += 1
+                st.session_state.en_entrevista = True
+                return
 
 def main():
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
+    if "en_entrevista" not in st.session_state:
+        st.session_state.en_entrevista = False
 
     if not st.session_state.logged_in:
         login()
-    else:
+    elif not st.session_state.en_entrevista:
         landing()
+    else:
+        st.write("🛠 Aquí empezará la entrevista...")
 
 if __name__ == "__main__":
     main()
