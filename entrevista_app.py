@@ -22,12 +22,15 @@ def set_background(png_file):
     css = f"""
     <style>
         .stApp {{
-            background-image: url('data:image/png;base64,{encoded}');
-            background-size: 600px;
+            background-image: url("data:image/png;base64,{encoded}");
+            background-size: 80%;
             background-repeat: no-repeat;
             background-position: top center;
             background-attachment: fixed;
             background-color: white;
+        }}
+        .spacer {{
+            height: 250px;
         }}
         .header-container {{
             display: flex;
@@ -51,33 +54,33 @@ def set_background(png_file):
     st.markdown(css, unsafe_allow_html=True)
 
 def login():
+    st.markdown('<div class="spacer"></div>', unsafe_allow_html=True)
     st.title("Login de Entrevistador")
     seleccion = st.selectbox("Selecciona tu nombre", list(ENTREVISTADORES.keys()))
-    if st.button("Entrar", key="login_button"):
+    if st.button("Entrar"):
         st.session_state.entrevistador = seleccion
         st.session_state.email = ENTREVISTADORES[seleccion]
         st.session_state.logged_in = True
-        st.experimental_rerun()  # Para evitar doble clic
 
 def logout():
     st.markdown(
-        """
+        f"""
         <div class="header-container">
-            <h2>Bienvenid@ {}</h2>
+            <h2>Bienvenid@ {st.session_state.entrevistador}</h2>
             <form action="" method="post">
                 <button name="logout" type="submit">Cerrar sesión 🔒</button>
             </form>
         </div>
-        """.format(st.session_state.entrevistador),
+        """,
         unsafe_allow_html=True,
     )
     if st.session_state.get("logout"):
         st.session_state.logged_in = False
         st.session_state.entrevistador = None
         st.session_state.email = None
-        st.experimental_rerun()
 
 def landing():
+    st.markdown('<div class="spacer"></div>', unsafe_allow_html=True)
     logout()
     roles = {
         "🍽️ Camarero": "camarero",
