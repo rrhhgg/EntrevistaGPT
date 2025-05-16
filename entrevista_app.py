@@ -25,6 +25,7 @@ def login():
         st.session_state.entrevistador = seleccion
         st.session_state.email = ENTREVISTADORES[seleccion]
         st.session_state.logged_in = True
+        st.experimental_rerun()
 
 def logout():
     col1, col2 = st.columns([3, 1])
@@ -35,6 +36,7 @@ def logout():
             st.session_state.logged_in = False
             st.session_state.entrevistador = None
             st.session_state.email = None
+            st.experimental_rerun()
 
 def landing():
     mostrar_logo()
