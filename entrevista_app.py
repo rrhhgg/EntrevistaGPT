@@ -25,18 +25,25 @@ def set_background(png_file):
             background-image: url('data:image/png;base64,{encoded}');
             background-size: 600px;
             background-repeat: no-repeat;
-            background-position: center;
+            background-position: top center;
             background-attachment: fixed;
             background-color: white;
         }}
-        .centered-buttons > div {{
+        .header-container {{
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            margin-bottom: 2rem;
         }}
-        button[kind="secondary"] {{
-            font-size: 18px !important;
+        .horizontal-buttons {{
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 3rem;
+        }}
+        .horizontal-buttons button {{
+            font-size: 17px !important;
             padding: 0.75em 2em !important;
         }}
     </style>
@@ -46,21 +53,31 @@ def set_background(png_file):
 def login():
     st.title("Login de Entrevistador")
     seleccion = st.selectbox("Selecciona tu nombre", list(ENTREVISTADORES.keys()))
-    if st.button("Entrar"):
+    if st.button("Entrar", key="login_button"):
         st.session_state.entrevistador = seleccion
         st.session_state.email = ENTREVISTADORES[seleccion]
         st.session_state.logged_in = True
+        st.experimental_rerun()  # Para evitar doble clic
 
 def logout():
-    if st.button("Cerrar sesión 🔒"):
+    st.markdown(
+        """
+        <div class="header-container">
+            <h2>Bienvenid@ {}</h2>
+            <form action="" method="post">
+                <button name="logout" type="submit">Cerrar sesión 🔒</button>
+            </form>
+        </div>
+        """.format(st.session_state.entrevistador),
+        unsafe_allow_html=True,
+    )
+    if st.session_state.get("logout"):
         st.session_state.logged_in = False
         st.session_state.entrevistador = None
         st.session_state.email = None
         st.experimental_rerun()
 
 def landing():
-    st.title(f"Bienvenido, {st.session_state.entrevistador}")
-    st.markdown("Selecciona el tipo de entrevista que deseas realizar:")
     logout()
     roles = {
         "🍽️ Camarero": "camarero",
@@ -72,9 +89,9 @@ def landing():
         "🚚 Repartidor": "repartidor"
     }
 
-    st.markdown('<div class="centered-buttons">', unsafe_allow_html=True)
+    st.markdown('<div class="horizontal-buttons">', unsafe_allow_html=True)
     for nombre, clave in roles.items():
-        if st.button(nombre):
+        if st.button(nombre, key=clave):
             st.session_state.rol = clave
             st.success(f"Has elegido la entrevista para: {nombre}")
             st.stop()
