@@ -23,14 +23,12 @@ def set_background(png_file):
     <style>
         .stApp {{
             background-image: url("data:image/png;base64,{encoded}");
-            background-size: 300px;
+            background-size: 500px;
             background-repeat: no-repeat;
             background-position: top center;
             background-attachment: fixed;
             background-color: white;
-        }}
-        .spacer {{
-            height: 220px;
+            padding-top: 300px;
         }}
         .header-container {{
             display: flex;
@@ -54,7 +52,6 @@ def set_background(png_file):
     st.markdown(css, unsafe_allow_html=True)
 
 def login():
-    st.markdown('<div class="spacer"></div>', unsafe_allow_html=True)
     st.title("Login de Entrevistador")
     seleccion = st.selectbox("Selecciona tu nombre", list(ENTREVISTADORES.keys()))
     if st.button("Entrar"):
@@ -80,7 +77,6 @@ def logout():
         st.session_state.email = None
 
 def landing():
-    st.markdown('<div class="spacer"></div>', unsafe_allow_html=True)
     logout()
     roles = {
         "🍽️ Camarero": "camarero",
