@@ -12,8 +12,14 @@ ENTREVISTADORES = {
     "Mada": "mada.broton@grupogomez.es"
 }
 
+def mostrar_logo():
+    st.markdown(
+        "<div style='text-align: center'><img src='logo_gastronomico.png' width='300'></div>",
+        unsafe_allow_html=True
+    )
+
 def login():
-    st.image("logo_gastronomico.png", width=300)
+    mostrar_logo()
     st.title("Login de Entrevistador")
     seleccion = st.selectbox("Selecciona tu nombre", list(ENTREVISTADORES.keys()))
     if st.button("Entrar"):
@@ -32,7 +38,7 @@ def logout():
             st.session_state.email = None
 
 def landing():
-    st.image("logo_gastronomico.png", width=300)
+    mostrar_logo()
     logout()
     st.markdown("### Selecciona el tipo de entrevista que deseas realizar:")
 
