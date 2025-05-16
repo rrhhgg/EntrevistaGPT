@@ -1,8 +1,5 @@
 import streamlit as st
-from PIL import Image
-import base64
 
-# Diccionario de entrevistadores y correos
 ENTREVISTADORES = {
     "Keko": "frmichelin@grupogomez.es",
     "Maika": "m.demiguel@grupogomez.es",
@@ -15,43 +12,8 @@ ENTREVISTADORES = {
     "Mada": "mada.broton@grupogomez.es"
 }
 
-def set_background(png_file):
-    with open(png_file, "rb") as f:
-        data = f.read()
-    encoded = base64.b64encode(data).decode()
-    css = f"""
-    <style>
-        .stApp {{
-            background-image: url("data:image/png;base64,{encoded}");
-            background-size: 500px;
-            background-repeat: no-repeat;
-            background-position: top center;
-            background-attachment: fixed;
-            background-color: white;
-            padding-top: 300px;
-        }}
-        .header-container {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }}
-        .horizontal-buttons {{
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 3rem;
-        }}
-        .horizontal-buttons button {{
-            font-size: 17px !important;
-            padding: 0.75em 2em !important;
-        }}
-    </style>
-    """
-    st.markdown(css, unsafe_allow_html=True)
-
 def login():
+    st.image("logo_gastronomico.png", width=300)
     st.title("Login de Entrevistador")
     seleccion = st.selectbox("Selecciona tu nombre", list(ENTREVISTADORES.keys()))
     if st.button("Entrar"):
@@ -60,24 +22,20 @@ def login():
         st.session_state.logged_in = True
 
 def logout():
-    st.markdown(
-        f"""
-        <div class="header-container">
-            <h2>Bienvenid@ {st.session_state.entrevistador}</h2>
-            <form action="" method="post">
-                <button name="logout" type="submit">Cerrar sesión 🔒</button>
-            </form>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    if st.session_state.get("logout"):
-        st.session_state.logged_in = False
-        st.session_state.entrevistador = None
-        st.session_state.email = None
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.markdown(f"### Bienvenid@ {st.session_state.entrevistador}")
+    with col2:
+        if st.button("Cerrar sesión 🔒"):
+            st.session_state.logged_in = False
+            st.session_state.entrevistador = None
+            st.session_state.email = None
 
 def landing():
+    st.image("logo_gastronomico.png", width=300)
     logout()
+    st.markdown("### Selecciona el tipo de entrevista que deseas realizar:")
+
     roles = {
         "🍽️ Camarero": "camarero",
         "🔪 Cocinero": "cocinero",
@@ -88,17 +46,17 @@ def landing():
         "🚚 Repartidor": "repartidor"
     }
 
-    st.markdown('<div class="horizontal-buttons">', unsafe_allow_html=True)
+    cols = st.columns(4)
+    i = 0
     for nombre, clave in roles.items():
-        if st.button(nombre, key=clave):
-            st.session_state.rol = clave
-            st.success(f"Has elegido la entrevista para: {nombre}")
-            st.stop()
-    st.markdown('</div>', unsafe_allow_html=True)
+        with cols[i % 4]:
+            if st.button(nombre, key=clave):
+                st.session_state.rol = clave
+                st.success(f"Has elegido la entrevista para: {nombre}")
+                st.stop()
+        i += 1
 
 def main():
-    set_background("logo_gastronomico.png")
-
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
 
