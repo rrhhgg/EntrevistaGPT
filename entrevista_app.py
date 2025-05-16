@@ -13,10 +13,9 @@ ENTREVISTADORES = {
 }
 
 def mostrar_logo():
-    st.markdown(
-        "<div style='text-align: center'><img src='logo_gastronomico.png' width='300'></div>",
-        unsafe_allow_html=True
-    )
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image("logo_gastronomico.png", width=300)
 
 def login():
     mostrar_logo()
