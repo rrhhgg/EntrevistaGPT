@@ -24,23 +24,21 @@ def login():
     if st.button("Entrar"):
         st.session_state.entrevistador = seleccion
         st.session_state.email = ENTREVISTADORES[seleccion]
-        st.session_state.logged_in = True
+        st.session_state.pagina_actual = "landing"
 
-def logout():
+def landing():
+    mostrar_logo()
     col1, col2 = st.columns([3, 1])
     with col1:
         st.markdown(f"### Bienvenid@ {st.session_state.entrevistador}")
     with col2:
         if st.button("Cerrar sesión 🔒"):
-            st.session_state.logged_in = False
-            st.session_state.entrevistador = None
-            st.session_state.email = None
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.session_state.pagina_actual = "login"
+            return
 
-def landing():
-    mostrar_logo()
-    logout()
     st.markdown("### Selecciona el tipo de entrevista que deseas realizar:")
-
     roles = {
         "🍽️ Camarero": "camarero",
         "🔪 Cocinero": "cocinero",
@@ -57,21 +55,44 @@ def landing():
         with cols[i % 4]:
             if st.button(nombre, key=clave):
                 st.session_state.rol = clave
-                st.session_state.en_entrevista = True
+                st.session_state.pagina_actual = "datos"
                 return
+        i += 1
+
+def formulario_datos():
+    mostrar_logo()
+    st.markdown("### 📋 Datos del candidato")
+    with st.form("form_datos"):
+        st.session_state.nombre = st.text_input("Nombre completo")
+        st.session_state.telefono = st.text_input("Teléfono")
+        st.session_state.correo = st.text_input("Correo electrónico")
+        st.session_state.via = st.selectbox("Tipo de vía", ["Calle", "Avenida", "Plaza", "Camino"])
+        st.session_state.nombre_via = st.text_input("Nombre de la vía")
+        st.session_state.numero = st.text_input("Número")
+        st.session_state.puerta = st.text_input("Puerta")
+        st.session_state.cp = st.text_input("Código postal")
+        st.session_state.ciudad = st.text_input("Ciudad")
+
+        if st.form_submit_button("Comenzar entrevista"):
+            st.session_state.pagina_actual = "preguntas"
+            st.session_state.pagina_pregunta = 0
+            st.session_state.tiempos = []
+            st.session_state.respuestas = []
 
 def main():
-    if "logged_in" not in st.session_state:
-        st.session_state.logged_in = False
-    if "en_entrevista" not in st.session_state:
-        st.session_state.en_entrevista = False
+    if "pagina_actual" not in st.session_state:
+        st.session_state.pagina_actual = "login"
 
-    if not st.session_state.logged_in:
+    pagina = st.session_state.pagina_actual
+
+    if pagina == "login":
         login()
-    elif not st.session_state.en_entrevista:
+    elif pagina == "landing":
         landing()
-    else:
-        st.write("🛠 Aquí empezará la entrevista...")
+    elif pagina == "datos":
+        formulario_datos()
+    elif pagina == "preguntas":
+        st.write("Aquí vendrán las preguntas...")
 
 if __name__ == "__main__":
     main()
