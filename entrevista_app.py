@@ -23,14 +23,14 @@ def set_background(png_file):
     <style>
         .stApp {{
             background-image: url("data:image/png;base64,{encoded}");
-            background-size: 80%;
+            background-size: 300px;
             background-repeat: no-repeat;
             background-position: top center;
             background-attachment: fixed;
             background-color: white;
         }}
         .spacer {{
-            height: 250px;
+            height: 220px;
         }}
         .header-container {{
             display: flex;
