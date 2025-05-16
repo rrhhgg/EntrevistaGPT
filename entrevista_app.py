@@ -25,6 +25,10 @@ def login():
         st.session_state.entrevistador = seleccion
         st.session_state.email = ENTREVISTADORES[seleccion]
         st.session_state.logged_in = True
+        st.session_state.ready = True
+
+    if st.session_state.get("ready"):
+        st.session_state.ready = False
         st.experimental_rerun()
 
 def logout():
@@ -36,7 +40,11 @@ def logout():
             st.session_state.logged_in = False
             st.session_state.entrevistador = None
             st.session_state.email = None
-            st.experimental_rerun()
+            st.session_state.ready = True
+
+    if st.session_state.get("ready"):
+        st.session_state.ready = False
+        st.experimental_rerun()
 
 def landing():
     mostrar_logo()
