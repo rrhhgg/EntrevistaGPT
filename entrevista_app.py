@@ -13,29 +13,12 @@ ENTREVISTADORES = {
     "Mada": "mada.broton@grupogomez.es"
 }
 
-PREGUNTAS_COMUNES = [
-    "¿Dónde vives y cómo vendrías al trabajo?",
-    "¿Tienes facilidad para desplazarte a nuestros locales también en fin de semana y noches?",
-    "¿Qué idiomas hablas?",
-    "¿Qué experiencia tienes en hostelería?",
-    "¿Qué te gustó y qué no de tu último trabajo?",
-    "¿Por qué dejaste tu anterior trabajo?",
-    "¿Cómo era el ambiente de trabajo en tus trabajos anteriores?"
-]
+
+PREGUNTAS_COMUNES = ['¿Dónde vives actualmente y cómo sueles desplazarte al trabajo? En caso de utilizar transporte público, ¿cómo te organizas si sales del local después del último servicio (por ejemplo, fuera del horario del metro)?', '¿Tienes disponibilidad para trabajar por la noche y los fines de semana? ¿Podrías desplazarte sin problema a cualquiera de nuestros locales en esos horarios?', '¿Qué idiomas hablas y cuál es tu nivel en cada uno de ellos? Puedes mencionar si tienes fluidez al hablar, escribir o entender, y si los utilizas habitualmente en el trabajo.', '¿Qué es lo que más te gustaba y lo que menos de tu último trabajo? ¿Por qué motivo decidiste dejarlo?', '¿Cómo describirías el ambiente de trabajo en tus empleos anteriores? ¿Qué tal era tu relación con los compañeros y el equipo?']
 
 PREGUNTAS_POR_ROL = {
-    "camarero": [
-        "Estás atendiendo cuatro mesas que han llegado con poco margen entre ellas. ¿Cómo decides a cuál atender primero?",
-        "Háblame de una ocasión en la que ayudaste a un compañero que iba atrasado en su trabajo, aunque tú ya habías terminado tus tareas.",
-        "Cuéntame sobre una ocasión en la que un cliente te dijo que un plato no estaba a su gusto, aunque ya lo había comido casi entero.",
-        "En el briefing antes del servicio, tu director te indica que estás marcando mal los cubiertos. ¿Qué haces?",
-        "Estás en el pase y ves que un plato está listo pero nadie lo recoge. No es para tu mesa. ¿Qué haces?",
-        "Cuéntame sobre una ocasión en la que una mesa ya había pedido lo justo para cenar. ¿Qué hiciste?",
-        "Has terminado tu servicio y estás a punto de irte. ¿Cómo dejas tu zona de trabajo?",
-        "Cuéntame sobre una ocasión en la que cometiste un error al tomar una comanda y se lo serviste mal al cliente."
-    ]
+    "camarero": ['Estás atendiendo cuatro mesas que han llegado con poco margen entre ellas. ¿Cómo decides a cuál atender primero?', 'Háblame de una ocasión en la que ayudaste a un compañero que iba atrasado en su trabajo, aunque tú ya habías terminado tus tareas.', 'Cuéntame sobre una ocasión en la que un cliente te dijo que un plato no estaba a su gusto, aunque ya lo había comido casi entero.', 'En el briefing antes del servicio, tu director te indica que estás marcando mal los cubiertos. ¿Qué haces?', 'Estás en el pase y ves que un plato está listo pero nadie lo recoge. No es para tu mesa. ¿Qué haces?', 'Cuéntame sobre una ocasión en la que una mesa ya había pedido lo justo para cenar. ¿Qué hiciste?', 'Has terminado tu servicio y estás a punto de irte. ¿Cómo dejas tu zona de trabajo?', 'Cuéntame sobre una ocasión en la que cometiste un error al tomar una comanda y se lo serviste mal al cliente.']
 }
-
 def mostrar_logo():
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
