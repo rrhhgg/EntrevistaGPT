@@ -54,7 +54,13 @@ def landing():
     st.markdown("### Selecciona el tipo de entrevista que deseas realizar:")
 
     roles = {
-        "🍽️ Camarero": "camarero"
+        "🍽️ Camarero": "camarero",
+        "🔪 Cocinero": "cocinero",
+        "👩‍✈️ Hostess": "hostess",
+        "👔 Director": "director",
+        "👨‍🍳 Jefe de Cocina": "jefe_cocina",
+        "🧼 Friegue": "friegue",
+        "🚚 Repartidor": "repartidor"
     }
 
     cols = st.columns(4)
@@ -63,15 +69,32 @@ def landing():
         with cols[i % 4]:
             if st.button(nombre, key=clave):
                 st.session_state.rol = clave
-                preguntas_especificas = PREGUNTAS_POR_ROL.get(st.session_state.rol, [])
-                st.session_state.preguntas = PREGUNTAS_COMUNES + preguntas_especificas
-                st.session_state.pagina_pregunta = 0
-                st.session_state.respuestas = []
-                st.session_state.tiempos = []
-                st.session_state.start_time = time.time()
-                st.session_state.pagina_actual = "preguntas"
+                st.session_state.pagina_actual = "datos"
                 return
         i += 1
+
+def formulario_datos():
+    mostrar_logo()
+    st.markdown("### 📋 Datos del candidato")
+    with st.form("form_datos"):
+        st.session_state.nombre = st.text_input("Nombre completo")
+        st.session_state.telefono = st.text_input("Teléfono")
+        st.session_state.correo = st.text_input("Correo electrónico")
+        st.session_state.via = st.selectbox("Tipo de vía", ["Calle", "Avenida", "Plaza", "Camino"])
+        st.session_state.nombre_via = st.text_input("Nombre de la vía")
+        st.session_state.numero = st.text_input("Número")
+        st.session_state.puerta = st.text_input("Puerta")
+        st.session_state.cp = st.text_input("Código postal")
+        st.session_state.ciudad = st.text_input("Ciudad")
+
+        if st.form_submit_button("Comenzar entrevista"):
+            preguntas_especificas = PREGUNTAS_POR_ROL.get(st.session_state.rol, [])
+            st.session_state.preguntas = PREGUNTAS_COMUNES + preguntas_especificas
+            st.session_state.pagina_pregunta = 0
+            st.session_state.respuestas = []
+            st.session_state.tiempos = []
+            st.session_state.start_time = time.time()
+            st.session_state.pagina_actual = "preguntas"
 
 def entrevista():
     mostrar_logo()
@@ -87,18 +110,23 @@ def entrevista():
     st.write("⏱️ Tienes 120 segundos para responder.")
     respuesta = st.text_area(pregunta, key=f"respuesta_{pagina}")
 
-    tiempo_transcurrido = int(time.time() - st.session_state.start_time)
+    if "respuesta_tiempo_inicio" not in st.session_state:
+        st.session_state.respuesta_tiempo_inicio = time.time()
+
+    tiempo_transcurrido = int(time.time() - st.session_state.respuesta_tiempo_inicio)
+    avanzar = False
+
     if tiempo_transcurrido >= 120:
         avanzar = True
     else:
-        avanzar = st.button("Enviar respuesta")
+        if st.button("Enviar respuesta"):
+            avanzar = True
 
     if avanzar:
         st.session_state.respuestas.append(respuesta)
         st.session_state.tiempos.append(min(tiempo_transcurrido, 120))
-        st.session_state.start_time = time.time()
         st.session_state.pagina_pregunta += 1
-        st.experimental_rerun()
+        st.session_state.respuesta_tiempo_inicio = time.time()
 
 def mostrar_resultados():
     mostrar_logo()
@@ -128,6 +156,8 @@ def main():
         login()
     elif pagina == "landing":
         landing()
+    elif pagina == "datos":
+        formulario_datos()
     elif pagina == "preguntas":
         entrevista()
 
