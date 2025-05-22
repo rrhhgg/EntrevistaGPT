@@ -14,13 +14,25 @@ ENTREVISTADORES = {
 }
 
 PREGUNTAS_COMUNES = [
-    "¿Qué idiomas hablas y con qué nivel?",
-    "¿Tienes medio de transporte propio para llegar al trabajo?"
+    "¿Dónde vives y cómo vendrías al trabajo?",
+    "¿Tienes facilidad para desplazarte a nuestros locales también en fin de semana y noches?",
+    "¿Qué idiomas hablas?",
+    "¿Qué experiencia tienes en hostelería?",
+    "¿Qué te gustó y qué no de tu último trabajo?",
+    "¿Por qué dejaste tu anterior trabajo?",
+    "¿Cómo era el ambiente de trabajo en tus trabajos anteriores?"
 ]
 
 PREGUNTAS_POR_ROL = {
     "camarero": [
-        "Cuéntame cómo recomiendas un vino a un cliente que no sabe qué pedir."
+        "Estás atendiendo cuatro mesas que han llegado con poco margen entre ellas. ¿Cómo decides a cuál atender primero?",
+        "Háblame de una ocasión en la que ayudaste a un compañero que iba atrasado en su trabajo, aunque tú ya habías terminado tus tareas.",
+        "Cuéntame sobre una ocasión en la que un cliente te dijo que un plato no estaba a su gusto, aunque ya lo había comido casi entero.",
+        "En el briefing antes del servicio, tu director te indica que estás marcando mal los cubiertos. ¿Qué haces?",
+        "Estás en el pase y ves que un plato está listo pero nadie lo recoge. No es para tu mesa. ¿Qué haces?",
+        "Cuéntame sobre una ocasión en la que una mesa ya había pedido lo justo para cenar. ¿Qué hiciste?",
+        "Has terminado tu servicio y estás a punto de irte. ¿Cómo dejas tu zona de trabajo?",
+        "Cuéntame sobre una ocasión en la que cometiste un error al tomar una comanda y se lo serviste mal al cliente."
     ]
 }
 
@@ -52,17 +64,9 @@ def landing():
     mostrar_logo()
     logout()
     st.markdown("### Selecciona el tipo de entrevista que deseas realizar:")
-
     roles = {
-        "🍽️ Camarero": "camarero",
-        "🔪 Cocinero": "cocinero",
-        "👩‍✈️ Hostess": "hostess",
-        "👔 Director": "director",
-        "👨‍🍳 Jefe de Cocina": "jefe_cocina",
-        "🧼 Friegue": "friegue",
-        "🚚 Repartidor": "repartidor"
+        "🍽️ Camarero": "camarero"
     }
-
     cols = st.columns(4)
     i = 0
     for nombre, clave in roles.items():
@@ -86,7 +90,6 @@ def formulario_datos():
         st.session_state.puerta = st.text_input("Puerta")
         st.session_state.cp = st.text_input("Código postal")
         st.session_state.ciudad = st.text_input("Ciudad")
-
         if st.form_submit_button("Comenzar entrevista"):
             preguntas_especificas = PREGUNTAS_POR_ROL.get(st.session_state.rol, [])
             st.session_state.preguntas = PREGUNTAS_COMUNES + preguntas_especificas
@@ -100,28 +103,22 @@ def entrevista():
     mostrar_logo()
     preguntas = st.session_state.preguntas
     pagina = st.session_state.pagina_pregunta
-
     if pagina >= len(preguntas):
         mostrar_resultados()
         return
-
     pregunta = preguntas[pagina]
     st.markdown(f"### Pregunta {pagina + 1} de {len(preguntas)}")
     st.write("⏱️ Tienes 120 segundos para responder.")
     respuesta = st.text_area(pregunta, key=f"respuesta_{pagina}")
-
     if "respuesta_tiempo_inicio" not in st.session_state:
         st.session_state.respuesta_tiempo_inicio = time.time()
-
     tiempo_transcurrido = int(time.time() - st.session_state.respuesta_tiempo_inicio)
     avanzar = False
-
     if tiempo_transcurrido >= 120:
         avanzar = True
     else:
         if st.button("Enviar respuesta"):
             avanzar = True
-
     if avanzar:
         st.session_state.respuestas.append(respuesta)
         st.session_state.tiempos.append(min(tiempo_transcurrido, 120))
@@ -131,10 +128,8 @@ def entrevista():
 def mostrar_resultados():
     mostrar_logo()
     st.markdown("### 📝 Resultados de la Entrevista")
-
     total_puntos = 0
     st.session_state.evaluaciones = []
-
     for i, respuesta in enumerate(st.session_state.respuestas):
         puntuacion = 7
         justificacion = "Ejemplo de evaluación generada automáticamente."
@@ -142,16 +137,13 @@ def mostrar_resultados():
         st.markdown(f"**Pregunta {i+1}:** Puntuación: {puntuacion}/10")
         st.markdown(f"Justificación: {justificacion}")
         st.markdown("---")
-
     st.markdown(f"**⏱️ Tiempo total empleado:** {sum(st.session_state.tiempos)} segundos")
     st.markdown(f"**✅ Puntuación total:** {total_puntos} puntos")
 
 def main():
     if "pagina_actual" not in st.session_state:
         st.session_state.pagina_actual = "login"
-
     pagina = st.session_state.pagina_actual
-
     if pagina == "login":
         login()
     elif pagina == "landing":
