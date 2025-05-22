@@ -63,32 +63,15 @@ def landing():
         with cols[i % 4]:
             if st.button(nombre, key=clave):
                 st.session_state.rol = clave
-                st.session_state.pagina_actual = "datos"
+                preguntas_especificas = PREGUNTAS_POR_ROL.get(st.session_state.rol, [])
+                st.session_state.preguntas = PREGUNTAS_COMUNES + preguntas_especificas
+                st.session_state.pagina_pregunta = 0
+                st.session_state.respuestas = []
+                st.session_state.tiempos = []
+                st.session_state.start_time = time.time()
+                st.session_state.pagina_actual = "preguntas"
                 return
         i += 1
-
-def formulario_datos():
-    mostrar_logo()
-    st.markdown("### 📋 Datos del candidato")
-    with st.form("form_datos"):
-        st.session_state.nombre = st.text_input("Nombre completo")
-        st.session_state.telefono = st.text_input("Teléfono")
-        st.session_state.correo = st.text_input("Correo electrónico")
-        st.session_state.via = st.selectbox("Tipo de vía", ["Calle", "Avenida", "Plaza", "Camino"])
-        st.session_state.nombre_via = st.text_input("Nombre de la vía")
-        st.session_state.numero = st.text_input("Número")
-        st.session_state.puerta = st.text_input("Puerta")
-        st.session_state.cp = st.text_input("Código postal")
-        st.session_state.ciudad = st.text_input("Ciudad")
-
-        if st.form_submit_button("Comenzar entrevista"):
-            preguntas_especificas = PREGUNTAS_POR_ROL.get(st.session_state.rol, [])
-            st.session_state.preguntas = PREGUNTAS_COMUNES + preguntas_especificas
-            st.session_state.pagina_pregunta = 0
-            st.session_state.respuestas = []
-            st.session_state.tiempos = []
-            st.session_state.start_time = time.time()
-            st.session_state.pagina_actual = "preguntas"
 
 def entrevista():
     mostrar_logo()
@@ -145,8 +128,6 @@ def main():
         login()
     elif pagina == "landing":
         landing()
-    elif pagina == "datos":
-        formulario_datos()
     elif pagina == "preguntas":
         entrevista()
 
