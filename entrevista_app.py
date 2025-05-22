@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 
 ENTREVISTADORES = {
     "Keko": "frmichelin@grupogomez.es",
@@ -10,6 +11,17 @@ ENTREVISTADORES = {
     "Julio": "j.barzola@grupogomez.es",
     "Vanesa": "v.gomez@grupogomez.es",
     "Mada": "mada.broton@grupogomez.es"
+}
+
+PREGUNTAS_COMUNES = [
+    "¿Qué idiomas hablas y con qué nivel?",
+    "¿Tienes medio de transporte propio para llegar al trabajo?"
+]
+
+PREGUNTAS_POR_ROL = {
+    "camarero": [
+        "Cuéntame cómo recomiendas un vino a un cliente que no sabe qué pedir."
+    ]
 }
 
 def mostrar_logo():
@@ -26,8 +38,7 @@ def login():
         st.session_state.email = ENTREVISTADORES[seleccion]
         st.session_state.pagina_actual = "landing"
 
-def landing():
-    mostrar_logo()
+def logout():
     col1, col2 = st.columns([3, 1])
     with col1:
         st.markdown(f"### Bienvenid@ {st.session_state.entrevistador}")
@@ -36,17 +47,14 @@ def landing():
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
             st.session_state.pagina_actual = "login"
-            return
 
+def landing():
+    mostrar_logo()
+    logout()
     st.markdown("### Selecciona el tipo de entrevista que deseas realizar:")
+
     roles = {
-        "🍽️ Camarero": "camarero",
-        "🔪 Cocinero": "cocinero",
-        "👩‍✈️ Hostess": "hostess",
-        "👔 Director": "director",
-        "👨‍🍳 Jefe de Cocina": "jefe_cocina",
-        "🧼 Friegue": "friegue",
-        "🚚 Repartidor": "repartidor"
+        "🍽️ Camarero": "camarero"
     }
 
     cols = st.columns(4)
@@ -74,10 +82,58 @@ def formulario_datos():
         st.session_state.ciudad = st.text_input("Ciudad")
 
         if st.form_submit_button("Comenzar entrevista"):
-            st.session_state.pagina_actual = "preguntas"
+            preguntas_especificas = PREGUNTAS_POR_ROL.get(st.session_state.rol, [])
+            st.session_state.preguntas = PREGUNTAS_COMUNES + preguntas_especificas
             st.session_state.pagina_pregunta = 0
-            st.session_state.tiempos = []
             st.session_state.respuestas = []
+            st.session_state.tiempos = []
+            st.session_state.start_time = time.time()
+            st.session_state.pagina_actual = "preguntas"
+
+def entrevista():
+    mostrar_logo()
+    preguntas = st.session_state.preguntas
+    pagina = st.session_state.pagina_pregunta
+
+    if pagina >= len(preguntas):
+        mostrar_resultados()
+        return
+
+    pregunta = preguntas[pagina]
+    st.markdown(f"### Pregunta {pagina + 1} de {len(preguntas)}")
+    st.write("⏱️ Tienes 120 segundos para responder.")
+    respuesta = st.text_area(pregunta, key=f"respuesta_{pagina}")
+
+    tiempo_transcurrido = int(time.time() - st.session_state.start_time)
+    if tiempo_transcurrido >= 120:
+        avanzar = True
+    else:
+        avanzar = st.button("Enviar respuesta")
+
+    if avanzar:
+        st.session_state.respuestas.append(respuesta)
+        st.session_state.tiempos.append(min(tiempo_transcurrido, 120))
+        st.session_state.start_time = time.time()
+        st.session_state.pagina_pregunta += 1
+        st.experimental_rerun()
+
+def mostrar_resultados():
+    mostrar_logo()
+    st.markdown("### 📝 Resultados de la Entrevista")
+
+    total_puntos = 0
+    st.session_state.evaluaciones = []
+
+    for i, respuesta in enumerate(st.session_state.respuestas):
+        puntuacion = 7
+        justificacion = "Ejemplo de evaluación generada automáticamente."
+        total_puntos += puntuacion
+        st.markdown(f"**Pregunta {i+1}:** Puntuación: {puntuacion}/10")
+        st.markdown(f"Justificación: {justificacion}")
+        st.markdown("---")
+
+    st.markdown(f"**⏱️ Tiempo total empleado:** {sum(st.session_state.tiempos)} segundos")
+    st.markdown(f"**✅ Puntuación total:** {total_puntos} puntos")
 
 def main():
     if "pagina_actual" not in st.session_state:
@@ -92,7 +148,7 @@ def main():
     elif pagina == "datos":
         formulario_datos()
     elif pagina == "preguntas":
-        st.write("Aquí vendrán las preguntas...")
+        entrevista()
 
 if __name__ == "__main__":
     main()
