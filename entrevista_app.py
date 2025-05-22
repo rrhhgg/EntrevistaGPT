@@ -139,3 +139,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def mostrar_envio_resultado():
+    mostrar_logo()
+    if st.session_state.get("envio_ok"):
+        st.success("✅ La entrevista se ha enviado correctamente a Monday.")
+    else:
+        st.error("❌ Hubo un problema al enviar la entrevista a Monday.")

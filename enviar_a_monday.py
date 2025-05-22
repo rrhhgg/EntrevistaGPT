@@ -74,3 +74,4 @@ def enviar_a_monday(datos):
         st.success("✅ Entrevista enviada a Monday con éxito.")
     else:
         st.error(f"❌ Error al enviar a Monday: {response.text}")
+        st.write(response.text)
