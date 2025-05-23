@@ -1,5 +1,6 @@
 import requests
 import streamlit as st
+import json
 
 def enviar_a_monday(datos):
     api_key = st.secrets["monday_api_key"]
@@ -10,56 +11,40 @@ def enviar_a_monday(datos):
         "Content-Type": "application/json"
     }
 
+    column_values = {
+        "phone_mkqjgqhj": datos["telefono"],
+        "email_mkqjt99t": datos["correo"],
+        "dropdown_mkqjbykm": {"labels": [datos["via"]]},
+        "text_mkqjmeh1": datos["nombre_via"],
+        "numeric_mkqjjj0g": int(datos["numero"]) if datos["numero"].isdigit() else 0,
+        "text_mkqjwkmz": datos["puerta"],
+        "numeric_mkqjwczq": int(datos["cp"]) if datos["cp"].isdigit() else 0,
+        "text_mkqjx0sz": datos["ciudad"],
+        "multiple_person_mkqhdm94": {"personsAndTeams": [{"email": datos["entrevistador_email"]}]},
+        "dropdown_mkqhgq7t": {"labels": [datos["rol"]]},
+        "numeric_mkqhfqy3": datos["puntuacion_total"],
+        "text_mkqhc1ck": datos["evaluacion_final"],
+        "numeric_mkqjs2kq": datos["tiempo_total"]
+    }
+
+    for i in range(13):
+        columna_p = f"numeric_mkq{'je1xr' if i==0 else 'j583y' if i==1 else 'jtmhs' if i==2 else 'jp912' if i==3 else 'r6njmm' if i==4 else 'jax81' if i==5 else 'j4hff' if i==6 else 'jx55q' if i==7 else 'jx2t' if i==8 else 'jyb6b' if i==9 else 'j34xs' if i==10 else 'jsyt6' if i==11 else 'jbvax'}"
+        columna_e = f"text_mkq{'jynvd' if i==0 else 'jq3x5' if i==1 else 'jvc1p' if i==2 else 'j3t0k' if i==3 else 'r6bc04' if i==4 else 'jtv3j' if i==5 else 'j5mt8' if i==6 else 'jqx0q' if i==7 else 'jbfd8' if i==8 else 'jx2qd' if i==9 else 'j998e' if i==10 else 'jks1c' if i==11 else 'jdwx5'}"
+        column_values[columna_p] = datos["puntuaciones"][i]
+        column_values[columna_e] = datos["evaluaciones"][i]
+
+    col_vals_str = json.dumps(column_values).replace('"', '\"')
+
     mutation = {
         "query": f"""
         mutation {{
-          create_item(
-            board_id: {board_id},
-            item_name: "{datos['nombre']}",
-            column_values: {{
-              "phone_mkqjgqhj": "{datos['telefono']}",
-              "email_mkqjt99t": "{datos['correo']}",
-              "dropdown_mkqjbykm": {{ "labels": ["{datos['via']}"] }},
-              "text_mkqjmeh1": "{datos['nombre_via']}",
-              "numeric_mkqjjj0g": {datos['numero']},
-              "text_mkqjwkmz": "{datos['puerta']}",
-              "numeric_mkqjwczq": {datos['cp']},
-              "text_mkqjx0sz": "{datos['ciudad']}",
-              "multiple_person_mkqhdm94": {{ "personsAndTeams": [{{ "email": "{datos['entrevistador_email']}" }}] }},
-              "dropdown_mkqhgq7t": {{ "labels": ["{datos['rol']}"] }},
-              "numeric_mkqhfqy3": {datos['puntuacion_total']},
-              "text_mkqhc1ck": "{datos['evaluacion_final']}",
-              "numeric_mkqjs2kq": {datos['tiempo_total']},
-              "numeric_mkqje1xr": {datos['puntuaciones'][0]},
-              "numeric_mkqj583y": {datos['puntuaciones'][1]},
-              "numeric_mkqjtmhs": {datos['puntuaciones'][2]},
-              "numeric_mkqjp912": {datos['puntuaciones'][3]},
-              "numeric_mkr6njmm": {datos['puntuaciones'][4]},
-              "numeric_mkqjax81": {datos['puntuaciones'][5]},
-              "numeric_mkqj4hff": {datos['puntuaciones'][6]},
-              "numeric_mkqjx55q": {datos['puntuaciones'][7]},
-              "numeric_mkqjx2t": {datos['puntuaciones'][8]},
-              "numeric_mkqjyb6b": {datos['puntuaciones'][9]},
-              "numeric_mkqj34xs": {datos['puntuaciones'][10]},
-              "numeric_mkqjsyt6": {datos['puntuaciones'][11]},
-              "numeric_mkqjbvax": {datos['puntuaciones'][12]},
-              "text_mkqjynvd": "{datos['evaluaciones'][0]}",
-              "text_mkqjq3x5": "{datos['evaluaciones'][1]}",
-              "text_mkqjvc1p": "{datos['evaluaciones'][2]}",
-              "text_mkqj3t0k": "{datos['evaluaciones'][3]}",
-              "text_mkr6bc04": "{datos['evaluaciones'][4]}",
-              "text_mkqjtv3j": "{datos['evaluaciones'][5]}",
-              "text_mkqj5mt8": "{datos['evaluaciones'][6]}",
-              "text_mkqjqx0q": "{datos['evaluaciones'][7]}",
-              "text_mkqjbfd8": "{datos['evaluaciones'][8]}",
-              "text_mkqjx2qd": "{datos['evaluaciones'][9]}",
-              "text_mkqj998e": "{datos['evaluaciones'][10]}",
-              "text_mkqjks1c": "{datos['evaluaciones'][11]}",
-              "text_mkqjdwx5": "{datos['evaluaciones'][12]}"
+            create_item (
+                board_id: {board_id},
+                item_name: "{datos["nombre"]}",
+                column_values: "{col_vals_str}"
+            ) {{
+                id
             }}
-          ) {{
-            id
-          }}
         }}
         """
     }
@@ -73,5 +58,5 @@ def enviar_a_monday(datos):
     if response.status_code == 200:
         st.success("✅ Entrevista enviada a Monday con éxito.")
     else:
-        st.error(f"❌ Error al enviar a Monday: {response.text}")
+        st.error("❌ Error al enviar a Monday")
         st.write(response.text)
