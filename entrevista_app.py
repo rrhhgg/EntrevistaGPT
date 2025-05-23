@@ -3,6 +3,9 @@ import streamlit as st
 import time
 from enviar_a_monday import enviar_a_monday
 
+API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5NzQ5NDgyNCwiYWFpIjoxMSwidWlkIjo0NDIyNjMxNiwiaWFkIjoiMjAyMy0xMS0yMFQxNzowNjozNC4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTY4ODEzMjIsInJnbiI6ImV1YzEifQ.o1cqRb0B9pGxLS2PQQbU4_RkQlhW3GhGVkGUV3xiCxI"
+BOARD_ID = 1939525964
+
 ENTREVISTADORES = {
     "Keko": "frmichelin@grupogomez.es",
     "Maika": "m.demiguel@grupogomez.es",
@@ -68,14 +71,12 @@ def landing():
         "🍽️ Camarero": "camarero"
     }
     cols = st.columns(4)
-    i = 0
-    for nombre, clave in roles.items():
+    for i, (nombre, clave) in enumerate(roles.items()):
         with cols[i % 4]:
             if st.button(nombre, key=clave):
                 st.session_state.rol = clave
                 st.session_state.pagina_actual = "datos"
                 return
-        i += 1
 
 def formulario_datos():
     mostrar_logo()
@@ -125,21 +126,21 @@ def entrevista():
         st.session_state.pagina_pregunta += 1
         st.session_state.respuesta_tiempo_inicio = time.time()
 
-
 def mostrar_resultados():
     mostrar_logo()
     st.markdown("### 📝 Resultados de la Entrevista")
-
     total_puntos = 0
-    st.session_state.evaluaciones = []
-
+    evaluaciones = []
+    puntuaciones = []
     for i, respuesta in enumerate(st.session_state.respuestas):
         puntuacion = 7
-        justificacion = "Ejemplo de evaluación generada automáticamente."
-        total_puntos += puntuacion
+        evaluacion = "Evaluación automática"
         st.markdown(f"**Pregunta {i+1}:** Puntuación: {puntuacion}/10")
-        st.markdown(f"Justificación: {justificacion}")
+        st.markdown(f"Justificación: {evaluacion}")
         st.markdown("---")
+        puntuaciones.append(puntuacion)
+        evaluaciones.append(evaluacion)
+        total_puntos += puntuacion
 
     st.markdown(f"**⏱️ Tiempo total empleado:** {sum(st.session_state.tiempos)} segundos")
     st.markdown(f"**✅ Puntuación total:** {total_puntos} puntos")
@@ -159,25 +160,20 @@ def mostrar_resultados():
         "puntuacion_total": total_puntos,
         "evaluacion_final": "Ejemplo de evaluación final",
         "tiempo_total": sum(st.session_state.tiempos),
-        "puntuaciones": [7]*13,
-        "evaluaciones": ["Evaluación automática"]*13
+        "puntuaciones": puntuaciones,
+        "evaluaciones": evaluaciones
     }
 
-    st.write("📦 Enviando datos a Monday...")
-    st.write(datos)
-
     try:
-        from enviar_a_monday import enviar_a_monday
-        enviar_a_monday(datos)
+        enviar_a_monday(API_KEY, BOARD_ID, datos)
         st.session_state.envio_ok = True
-        st.write("✅ Enviado correctamente")
+        st.success("✅ Enviado correctamente a Monday")
     except Exception as e:
         st.session_state.envio_ok = False
-        st.write("❌ Error al enviar")
-        st.write(e)
+        st.error("❌ Error al enviar a Monday")
+        st.error(str(e))
 
     st.session_state.pagina_actual = "envio"
-
 
 def mostrar_envio_resultado():
     mostrar_logo()
@@ -189,9 +185,7 @@ def mostrar_envio_resultado():
 def main():
     if "pagina_actual" not in st.session_state:
         st.session_state.pagina_actual = "login"
-
     pagina = st.session_state.pagina_actual
-
     if pagina == "login":
         login()
     elif pagina == "landing":
