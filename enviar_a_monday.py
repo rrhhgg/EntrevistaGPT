@@ -1,16 +1,7 @@
 import requests
 import os
 
-MONDAY_API_KEY = os.getenv("MONDAY_API_KEY")
-if MONDAY_API_KEY is None:
-    raise ValueError("❌ No se encontró MONDAY_API_KEY. Asegúrate de haberlo añadido en los secretos de Streamlit.")
-
 BOARD_ID = 1939525964
-
-HEADERS = {
-    "Authorization": MONDAY_API_KEY,
-    "Content-Type": "application/json"
-}
 
 def formatear_telefono(telefono):
     if not telefono.startswith("+"):
@@ -18,6 +9,15 @@ def formatear_telefono(telefono):
     return telefono
 
 def enviar_resultados_monday(session):
+    MONDAY_API_KEY = os.getenv("MONDAY_API_KEY")
+    if MONDAY_API_KEY is None:
+        raise ValueError("❌ No se encontró MONDAY_API_KEY. Asegúrate de haberlo añadido en los secretos de Streamlit.")
+
+    HEADERS = {
+        "Authorization": MONDAY_API_KEY,
+        "Content-Type": "application/json"
+    }
+
     try:
         nombre = session.nombre
         correo = session.correo
