@@ -29,23 +29,23 @@ def enviar_resultados_monday(session):
         tiempo_total = sum(session.tiempos)
         respuestas = session.respuestas
 
+        column_values = f"""{{
+            \"email\": {{\"email\": \"{correo}\", \"text\": \"{correo}\"}},
+            \"phone\": {{\"phone\": \"{telefono}\", \"countryShortName\": \"ES\"}},
+            \"text\": \"{direccion}\",
+            \"status\": {{\"label\": \"{rol.capitalize()}\"}},
+            \"long_text\": {{\"text\": \"Respuestas:\n{chr(10).join(respuestas)}\"}},
+            \"numbers\": {tiempo_total},
+            \"person\": {{\"email\": \"{email_entrevistador}\"}}
+        }}"""
+
         mutation = {
             "query": f"""
                 mutation {{
                   create_item (
                     board_id: {BOARD_ID},
                     item_name: "{nombre} - {rol}",
-                    column_values: {{
-                      "email": {{ "email": "{correo}", "text": "{correo}" }},
-                      "phone": {{ "phone": "{telefono}", "countryShortName": "ES" }},
-                      "text": "{direccion}",
-                      "status": {{ "label": "{rol.capitalize()}" }},
-                      "long_text": {{
-                        "text": "Respuestas:\n{chr(10).join(respuestas)}"
-                      }},
-                      "numbers": {tiempo_total},
-                      "person": {{ "email": "{email_entrevistador}" }}
-                    }}
+                    column_values: "{column_values}"
                   ) {{
                     id
                   }}
