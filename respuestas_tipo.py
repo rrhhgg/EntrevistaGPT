@@ -35,7 +35,63 @@ RESPUESTAS_TIPO = {
             "Tenso. Había muchos conflictos y poco apoyo.",
             "Malo. Me costaba llevarme bien con los compañeros."
         ],
-        "Estás atendiendo cuatro mesas que han llegado con poco margen entre ellas. ¿Cómo decides a cuál atender primero?": [
+        "Estás atendiendo cuatro mesas que han llegado con poco margen entre ellas. ¿Cómo decides a cuál atender primero?"
+    ,"Cuéntame sobre una ocasión en la que cometiste un error al tomar una comanda y se lo serviste mal al cliente.": [
+        "Reconocí el error, pedí disculpas, lo solucionamos rápido y aprendí de ello.",
+        "Lo asumí, hablé con el encargado y tratamos de compensar al cliente.",
+        "Intenté justificarme, aunque sabía que había sido mi error.",
+        "Dije que fue culpa de cocina para evitar líos.",
+        "Negué el error aunque sabía que era mío."
+    ],
+
+    ,"Has terminado tu servicio y estás a punto de irte. ¿Cómo dejas tu zona de trabajo?": [
+        "Reviso todo, limpio, dejo montado para el siguiente turno y aviso si falta algo.",
+        "Dejo la zona en orden y reviso lo básico.",
+        "Recojo rápido para irme pronto.",
+        "Solo recojo lo mío, no me encargo de más.",
+        "Me voy si ya es mi hora, aunque quede algo por hacer."
+    ],
+
+    ,"Cuéntame sobre una ocasión en la que una mesa ya había pedido lo justo para cenar. ¿Qué hiciste?": [
+        "Les sugerí un postre especial o digestivo sin ser insistente, y finalmente pidieron algo más.",
+        "Les ofrecí postre pero no quisieron. No insistí.",
+        "No les ofrecí nada más, ya habían pedido.",
+        "Me limité a llevar la cuenta.",
+        "No hice nada, no era mi turno en ese momento."
+    ],
+
+    ,"Estás en el pase y ves que un plato está listo pero nadie lo recoge. No es para tu mesa. ¿Qué haces?": [
+        "Lo recojo si puedo, aviso al camarero correspondiente o al encargado para no demorar el pase.",
+        "Aviso al compañero y si no viene rápido, lo llevo yo.",
+        "No hago nada, no es mi mesa.",
+        "Solo ayudo si me lo piden.",
+        "Ignoro el plato, cada uno tiene su trabajo."
+    ],
+
+    ,"En el briefing antes del servicio, tu director te indica que estás marcando mal los cubiertos. ¿Qué haces?": [
+        "Agradezco la corrección, pregunto la forma correcta y lo aplico de inmediato.",
+        "Le digo que lo tendré en cuenta y reviso mis marcas.",
+        "Le digo que lo hago como me enseñaron y lo dejamos ahí.",
+        "Le contesto que los cubiertos están bien colocados según mi experiencia.",
+        "Discuto con él porque no creo que sea un error."
+    ],
+
+    ,"Cuéntame sobre una ocasión en la que un cliente te dijo que un plato no estaba a su gusto, aunque ya lo había comido casi entero.": [
+        "Lo escuché con respeto, pedí disculpas y ofrecí una solución sin discutir. Informé a cocina y al encargado.",
+        "Le dije que lo entendía y le ofrecí un postre de cortesía.",
+        "Le dije que no podía hacer nada porque se lo había comido.",
+        "Lo consulté con cocina pero no me ofrecieron solución.",
+        "Le dije que no era justo quejarse después de comerlo entero."
+    ],
+
+    ,"Háblame de una ocasión en la que ayudaste a un compañero que iba atrasado en su trabajo, aunque tú ya habías terminado tus tareas.": [
+        "Siempre ayudo cuando puedo. Una vez terminé mi cierre y ayudé a un compañero con su partida sin que me lo pidieran.",
+        "Lo he hecho varias veces. Cuando veo que alguien va justo, pregunto si necesita algo.",
+        "Solo si no tengo otras cosas que hacer, intento echar una mano.",
+        "No suelo fijarme mucho en lo que hacen los demás si ya terminé lo mío.",
+        "Cada uno tiene su trabajo. Si termino, me voy."
+    ],
+: [
             "Saludo brevemente a todas las mesas para que se sientan atendidas y empiezo por la que parece tener más prisa (miradas, actitud).",
             "Inicio por la mesa con menos comensales para agilizar el servicio y luego organizo el resto según cercanía.",
             "Organizo las mesas en función de la complejidad del pedido y del trayecto para reducir desplazamientos.",
