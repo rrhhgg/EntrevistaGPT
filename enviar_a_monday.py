@@ -1,24 +1,23 @@
+
 import requests
-import streamlit as st
 import json
 
-def enviar_a_monday(datos):
-    api_key = st.secrets["monday_api_key"]
-    board_id = 1939525964
+def enviar_a_monday(datos, api_key, board_id):
+    url = "https://api.monday.com/v2"
 
     headers = {
         "Authorization": api_key,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
     }
 
     column_values = {
-        "phone_mkqjgqhj": datos["telefono"],
-        "email_mkqjt99t": datos["correo"],
+        "phone_mkqjgqhj": {"phone": datos["telefono"], "countryShortName": "ES"},
+        "email_mkqjt99t": {"email": datos["correo"]},
         "dropdown_mkqjbykm": {"labels": [datos["via"]]},
         "text_mkqjmeh1": datos["nombre_via"],
-        "numeric_mkqjjj0g": int(datos["numero"]) if datos["numero"].isdigit() else 0,
+        "numeric_mkqjjj0g": int(datos["numero"]) if datos["numero"].isdigit() else None,
         "text_mkqjwkmz": datos["puerta"],
-        "numeric_mkqjwczq": int(datos["cp"]) if datos["cp"].isdigit() else 0,
+        "numeric_mkqjwczq": int(datos["cp"]) if datos["cp"].isdigit() else None,
         "text_mkqjx0sz": datos["ciudad"],
         "multiple_person_mkqhdm94": {"personsAndTeams": [{"email": datos["entrevistador_email"]}]},
         "dropdown_mkqhgq7t": {"labels": [datos["rol"]]},
@@ -27,36 +26,43 @@ def enviar_a_monday(datos):
         "numeric_mkqjs2kq": datos["tiempo_total"]
     }
 
-    for i in range(13):
-        columna_p = f"numeric_mkq{'je1xr' if i==0 else 'j583y' if i==1 else 'jtmhs' if i==2 else 'jp912' if i==3 else 'r6njmm' if i==4 else 'jax81' if i==5 else 'j4hff' if i==6 else 'jx55q' if i==7 else 'jx2t' if i==8 else 'jyb6b' if i==9 else 'j34xs' if i==10 else 'jsyt6' if i==11 else 'jbvax'}"
-        columna_e = f"text_mkq{'jynvd' if i==0 else 'jq3x5' if i==1 else 'jvc1p' if i==2 else 'j3t0k' if i==3 else 'r6bc04' if i==4 else 'jtv3j' if i==5 else 'j5mt8' if i==6 else 'jqx0q' if i==7 else 'jbfd8' if i==8 else 'jx2qd' if i==9 else 'j998e' if i==10 else 'jks1c' if i==11 else 'jdwx5'}"
-        column_values[columna_p] = datos["puntuaciones"][i]
-        column_values[columna_e] = datos["evaluaciones"][i]
+    for i, val in enumerate(datos["puntuaciones"]):
+        if i < 5:
+            column_values[f"numeric_mkqje1xr".replace("1", str(i+1))] = val
+        else:
+            column_values[f"numeric_mkqjax81".replace("1", str(i-4))] = val
 
-    col_vals_str = json.dumps(column_values).replace('"', '\"')
+    for i, val in enumerate(datos["evaluaciones"]):
+        if i < 5:
+            column_values[f"text_mkqjynvd".replace("1", str(i+1))] = val
+        else:
+            column_values[f"text_mkqjtv3j".replace("1", str(i-4))] = val
 
-    mutation = {
-        "query": f"""
-        mutation {{
+    column_values_str = json.dumps(column_values).replace('"', '\"')
+
+    query = {
+        "query": f"""mutation {{
             create_item (
                 board_id: {board_id},
                 item_name: "{datos["nombre"]}",
-                column_values: "{col_vals_str}"
+                column_values: "{column_values_str}"
             ) {{
                 id
             }}
-        }}
-        """
+        }}"""
     }
 
-    response = requests.post(
-        url="https://api.monday.com/v2",
-        json=mutation,
-        headers=headers
-    )
-
+    response = requests.post(url, headers=headers, data=json.dumps(query))
     if response.status_code == 200:
-        st.success("✅ Entrevista enviada a Monday con éxito.")
+        result = response.json()
+        if "errors" in result:
+            print("❌ Error al enviar a Monday:")
+            print(json.dumps(result, indent=2))
+            return False
+        else:
+            print("✅ Enviado correctamente")
+            return True
     else:
-        st.error("❌ Error al enviar a Monday")
-        st.write(response.text)
+        print("❌ Error de red o autenticación:", response.status_code)
+        print(response.text)
+        return False
