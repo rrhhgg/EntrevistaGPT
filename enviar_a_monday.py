@@ -39,20 +39,20 @@ def enviar_resultados_monday(session):
             "person": {"email": email_entrevistador}
         }
 
-        column_values_str = json.dumps(column_values_dict).replace('"', '\"')
+        column_values_str = json.dumps(column_values_dict)
 
         mutation = {
-            "query": f'''
+            "query": f"""
                 mutation {{
                     create_item (
                         board_id: {BOARD_ID},
                         item_name: "{nombre} - {rol}",
-                        column_values: "{column_values_str}"
+                        column_values: {json.dumps(column_values_str)}
                     ) {{
                         id
                     }}
                 }}
-            '''
+            """
         }
 
         response = requests.post("https://api.monday.com/v2", json=mutation, headers=HEADERS)
