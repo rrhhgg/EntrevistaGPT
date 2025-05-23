@@ -31,7 +31,7 @@ def enviar_resultados_monday(session, column_values_extra):
         column_values_dict = {
             "email_mkqjt99t": {"email": correo, "text": correo},
             "phone_mkqjgqhj": {"phone": telefono, "countryShortName": "ES"},
-            "dropdown_mkqjbykm": {"label": session.via},
+            "dropdown_mkqjbykm": {"labels": [session.via]},
             "text_mkqjmeh1": session.nombre_via,
             "numeric_mkqjjj0g": int(session.numero) if session.numero.isdigit() else 0,
             "text_mkqjwkmz": session.puerta,
