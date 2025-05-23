@@ -9,7 +9,7 @@ def formatear_telefono(telefono):
         return "+34" + telefono.strip()
     return telefono
 
-def enviar_resultados_monday(session):
+def enviar_resultados_monday(session, column_values_extra):
     MONDAY_API_KEY = os.getenv("MONDAY_API_KEY")
     if MONDAY_API_KEY is None:
         raise ValueError("❌ No se encontró MONDAY_API_KEY.")
@@ -27,17 +27,22 @@ def enviar_resultados_monday(session):
         rol = session.rol
         direccion = f"{session.via} {session.nombre_via}, Nº {session.numero}, Puerta {session.puerta}, CP {session.cp}, {session.ciudad}"
         tiempo_total = sum(session.tiempos)
-        respuestas = session.respuestas
 
         column_values_dict = {
-            "email": {"email": correo, "text": correo},
-            "phone": {"phone": telefono, "countryShortName": "ES"},
-            "text": direccion,
-            "status": {"label": rol.capitalize()},
-            "long_text": {"text": "Respuestas:\n" + "\n".join(respuestas)},
-            "numbers": tiempo_total,
-            "person": {"email": email_entrevistador}
+            "email_mkqjt99t": {"email": correo, "text": correo},
+            "phone_mkqjgqhj": {"phone": telefono, "countryShortName": "ES"},
+            "dropdown_mkqjbykm": {"label": session.via},
+            "text_mkqjmeh1": session.nombre_via,
+            "numeric_mkqjjj0g": int(session.numero) if session.numero.isdigit() else 0,
+            "text_mkqjwkmz": session.puerta,
+            "numeric_mkqjwczq": int(session.cp) if session.cp.isdigit() else 0,
+            "text_mkqjx0sz": session.ciudad,
+            "multiple_person_mkqhdm94": {"personsAndTeams": [{"email": email_entrevistador}]},
+            "dropdown_mkqhgq7t": {"label": rol.capitalize()},
+            "numeric_mkqjs2kq": tiempo_total
         }
+
+        column_values_dict.update(column_values_extra)
 
         column_values_str = json.dumps(column_values_dict)
 
