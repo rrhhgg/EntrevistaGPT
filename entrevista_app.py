@@ -1,201 +1,95 @@
 
-import streamlit as st
-import time
-from enviar_a_monday import enviar_a_monday
+import requests
+import json
 
-API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5NzQ5NDgyNCwiYWFpIjoxMSwidWlkIjo0NDIyNjMxNiwiaWFkIjoiMjAyMy0xMS0yMFQxNzowNjozNC4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTY4ODEzMjIsInJnbiI6ImV1YzEifQ.o1cqRb0B9pGxLS2PQQbU4_RkQlhW3GhGVkGUV3xiCxI"
-BOARD_ID = 1939525964
-
-ENTREVISTADORES = {
-    "Keko": "frmichelin@grupogomez.es",
-    "Maika": "m.demiguel@grupogomez.es",
-    "Alba": "a.alandi@grupogomez.es",
-    "Cristina": "c.domenech@grupogomez.es",
-    "Maria": "maria.martin@grupogomez.es",
-    "Vlad": "v.cobusneanu@grupogomez.es",
-    "Julio": "j.barzola@grupogomez.es",
-    "Vanesa": "v.gomez@grupogomez.es",
-    "Mada": "mada.broton@grupogomez.es"
-}
-
-PREGUNTAS_COMUNES = [
-    "¿Dónde vives actualmente y cómo sueles desplazarte al trabajo? En caso de utilizar transporte público, ¿cómo te organizas si sales del local después del último servicio (por ejemplo, fuera del horario del metro)?",
-    "¿Tienes disponibilidad para trabajar por la noche y los fines de semana? ¿Podrías desplazarte sin problema a cualquiera de nuestros locales en esos horarios?",
-    "¿Qué idiomas hablas y cuál es tu nivel en cada uno de ellos? Puedes mencionar si tienes fluidez al hablar, escribir o entender, y si los utilizas habitualmente en el trabajo.",
-    "¿Qué es lo que más te gustaba y lo que menos de tu último trabajo? ¿Por qué motivo decidiste dejarlo?",
-    "¿Cómo describirías el ambiente de trabajo en tus empleos anteriores? ¿Qué tal era tu relación con los compañeros y el equipo?"
-]
-
-PREGUNTAS_POR_ROL = {
-    "camarero": [
-        "Estás atendiendo cuatro mesas que han llegado con poco margen entre ellas. ¿Cómo decides a cuál atender primero?",
-        "Háblame de una ocasión en la que ayudaste a un compañero que iba atrasado en su trabajo, aunque tú ya habías terminado tus tareas.",
-        "Cuéntame sobre una ocasión en la que un cliente te dijo que un plato no estaba a su gusto, aunque ya lo había comido casi entero.",
-        "En el briefing antes del servicio, tu director te indica que estás marcando mal los cubiertos. ¿Qué haces?",
-        "Estás en el pase y ves que un plato está listo pero nadie lo recoge. No es para tu mesa. ¿Qué haces?",
-        "Cuéntame sobre una ocasión en la que una mesa ya había pedido lo justo para cenar. ¿Qué hiciste?",
-        "Has terminado tu servicio y estás a punto de irte. ¿Cómo dejas tu zona de trabajo?",
-        "Cuéntame sobre una ocasión en la que cometiste un error al tomar una comanda y se lo serviste mal al cliente."
-    ]
-}
-
-def mostrar_logo():
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.image("logo_gastronomico.png", width=300)
-
-def login():
-    mostrar_logo()
-    st.title("Login de Entrevistador")
-    seleccion = st.selectbox("Selecciona tu nombre", list(ENTREVISTADORES.keys()))
-    if st.button("Entrar"):
-        st.session_state.entrevistador = seleccion
-        st.session_state.email = ENTREVISTADORES[seleccion]
-        st.session_state.pagina_actual = "landing"
-
-def logout():
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.markdown(f"### Bienvenid@ {st.session_state.entrevistador}")
-    with col2:
-        if st.button("Cerrar sesión 🔒"):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            st.session_state.pagina_actual = "login"
-
-def landing():
-    mostrar_logo()
-    logout()
-    st.markdown("### Selecciona el tipo de entrevista que deseas realizar:")
-    roles = {
-        "🍽️ Camarero": "camarero"
+def enviar_a_monday(datos, api_key, board_id):
+    url = "https://api.monday.com/v2"
+    headers = {
+        "Authorization": api_key,
+        "Content-Type": "application/json"
     }
-    cols = st.columns(4)
-    for i, (nombre, clave) in enumerate(roles.items()):
-        with cols[i % 4]:
-            if st.button(nombre, key=clave):
-                st.session_state.rol = clave
-                st.session_state.pagina_actual = "datos"
-                return
 
-def formulario_datos():
-    mostrar_logo()
-    st.markdown("### 📋 Datos del candidato")
-    with st.form("form_datos"):
-        st.session_state.nombre = st.text_input("Nombre completo")
-        st.session_state.telefono = st.text_input("Teléfono")
-        st.session_state.correo = st.text_input("Correo electrónico")
-        st.session_state.via = st.selectbox("Tipo de vía", ["Calle", "Avenida", "Plaza", "Camino"])
-        st.session_state.nombre_via = st.text_input("Nombre de la vía")
-        st.session_state.numero = st.text_input("Número")
-        st.session_state.puerta = st.text_input("Puerta")
-        st.session_state.cp = st.text_input("Código postal")
-        st.session_state.ciudad = st.text_input("Ciudad")
-        if st.form_submit_button("Comenzar entrevista"):
-            preguntas_especificas = PREGUNTAS_POR_ROL.get(st.session_state.rol, [])
-            st.session_state.preguntas = PREGUNTAS_COMUNES + preguntas_especificas
-            st.session_state.pagina_pregunta = 0
-            st.session_state.respuestas = []
-            st.session_state.tiempos = []
-            st.session_state.start_time = time.time()
-            st.session_state.pagina_actual = "preguntas"
+    entrevistador_ids = {
+        "frmichelin@grupogomez.es": 44226316,
+        "m.demiguel@grupogomez.es": 44226317,
+        "a.alandi@grupogomez.es": 44226318,
+        "c.domenech@grupogomez.es": 44226319,
+        "maria.martin@grupogomez.es": 44226320,
+        "v.cobusneanu@grupogomez.es": 44226321,
+        "j.barzola@grupogomez.es": 44226322,
+        "v.gomez@grupogomez.es": 44226323,
+        "mada.broton@grupogomez.es": 44226324
+    }
 
-def entrevista():
-    mostrar_logo()
-    preguntas = st.session_state.preguntas
-    pagina = st.session_state.pagina_pregunta
-    if pagina >= len(preguntas):
-        mostrar_resultados()
-        return
-    pregunta = preguntas[pagina]
-    st.markdown(f"### Pregunta {pagina + 1} de {len(preguntas)}")
-    st.write("⏱️ Tienes 120 segundos para responder.")
-    respuesta = st.text_area(pregunta, key=f"respuesta_{pagina}")
-    if "respuesta_tiempo_inicio" not in st.session_state:
-        st.session_state.respuesta_tiempo_inicio = time.time()
-    tiempo_transcurrido = int(time.time() - st.session_state.respuesta_tiempo_inicio)
-    avanzar = False
-    if tiempo_transcurrido >= 120:
-        avanzar = True
-    else:
-        if st.button("Enviar respuesta"):
-            avanzar = True
-    if avanzar:
-        st.session_state.respuestas.append(respuesta)
-        st.session_state.tiempos.append(min(tiempo_transcurrido, 120))
-        st.session_state.pagina_pregunta += 1
-        st.session_state.respuesta_tiempo_inicio = time.time()
+    entrevistador_email = datos["entrevistador_email"]
+    entrevistador_id = entrevistador_ids.get(entrevistador_email, None)
 
-def mostrar_resultados():
-    mostrar_logo()
-    st.markdown("### 📝 Resultados de la Entrevista")
-    total_puntos = 0
-    evaluaciones = []
-    puntuaciones = []
-    for i, respuesta in enumerate(st.session_state.respuestas):
-        puntuacion = 7
-        evaluacion = "Evaluación automática"
-        st.markdown(f"**Pregunta {i+1}:** Puntuación: {puntuacion}/10")
-        st.markdown(f"Justificación: {evaluacion}")
-        st.markdown("---")
-        puntuaciones.append(puntuacion)
-        evaluaciones.append(evaluacion)
-        total_puntos += puntuacion
+    if not entrevistador_id:
+        print(f"❌ No se encontró ID de entrevistador para {entrevistador_email}")
+        return False
 
-    st.markdown(f"**⏱️ Tiempo total empleado:** {sum(st.session_state.tiempos)} segundos")
-    st.markdown(f"**✅ Puntuación total:** {total_puntos} puntos")
+    telefono = datos["telefono"]
+    if not telefono.startswith("+"):
+        telefono = "+34" + telefono.lstrip("0")
 
-    datos = {
-        "nombre": st.session_state.nombre,
-        "telefono": st.session_state.telefono,
-        "correo": st.session_state.correo,
-        "via": st.session_state.via,
-        "nombre_via": st.session_state.nombre_via,
-        "numero": st.session_state.numero,
-        "puerta": st.session_state.puerta,
-        "cp": st.session_state.cp,
-        "ciudad": st.session_state.ciudad,
-        "entrevistador_email": st.session_state.email,
-        "rol": st.session_state.rol,
-        "puntuacion_total": total_puntos,
-        "evaluacion_final": "Ejemplo de evaluación final",
-        "tiempo_total": sum(st.session_state.tiempos),
-        "puntuaciones": puntuaciones,
-        "evaluaciones": evaluaciones
+    column_values = {
+        "multiple_person_mkqhdm94": {"personsAndTeams": [{"id": entrevistador_id, "kind": "person"}]},
+        "dropdown_mkqhgq7t": {"labels": [datos["rol"].capitalize()]},
+        "date": {"date": datos.get("fecha", "")},
+        "numeric_mkqhfqy3": datos["puntuacion_total"],
+        "text_mkqhc1ck": datos["evaluacion_final"],
+        "dropdown_mkqjbykm": {"labels": [datos["via"]]},
+        "text_mkqjmeh1": datos["nombre_via"],
+        "numeric_mkqjjj0g": datos["numero"],
+        "text_mkqjwkmz": datos["puerta"],
+        "numeric_mkqjwczq": datos["cp"],
+        "text_mkqjx0sz": datos["ciudad"],
+        "phone_mkqjgqhj": {"phone": telefono, "countryShortName": "ES"},
+        "email_mkqjt99t": {"email": datos["correo"], "text": datos["correo"]},
+        "numeric_mkqjs2kq": datos["tiempo_total"]
+    }
+
+    for i in range(1, 6):
+        num_id = ["e1xr", "583y", "tmhs", "p912", "6njmm"][i-1]
+        text_id = ["ynvd", "q3x5", "vc1p", "3t0k", "r6bc04"][i-1]
+        column_values[f"numeric_mkqj{num_id}"] = datos["puntuaciones"][i-1]
+        column_values[f"text_mkqj{text_id}"] = datos["evaluaciones"][i-1]
+
+    if datos["rol"] == "camarero":
+        for i in range(8):
+            num_id = ["ax81","4hff","x55q","x2t","yb6b","34xs","syt6","bvax"][i]
+            text_id = ["tv3j","5mt8","qx0q","bfd8","x2qd","998e","ks1c","dwx5"][i]
+            column_values[f"numeric_mkqj{num_id}"] = datos["puntuaciones"][i+5]
+            column_values[f"text_mkqj{text_id}"] = datos["evaluaciones"][i+5]
+
+    query = """
+    mutation ($item_name: String!, $board_id: Int!, $column_values: JSON!) {
+      create_item (
+        item_name: $item_name,
+        board_id: $board_id,
+        column_values: $column_values
+      ) {
+        id
+      }
+    }
+    """
+
+    payload = {
+        "query": query,
+        "variables": {
+            "item_name": datos["nombre"],
+            "board_id": int(board_id),
+            "column_values": json.dumps(column_values)
+        }
     }
 
     try:
-        enviar_a_monday(API_KEY, BOARD_ID, datos)
-        st.session_state.envio_ok = True
-        st.success("✅ Enviado correctamente a Monday")
+        response = requests.post(url, json=payload, headers=headers)
+        print("📤 Payload enviado:", json.dumps(payload, indent=2))
+        response.raise_for_status()
+        print("📥 Respuesta de Monday:", response.text)
+        return True
     except Exception as e:
-        st.session_state.envio_ok = False
-        st.error("❌ Error al enviar a Monday")
-        st.error(str(e))
-
-    st.session_state.pagina_actual = "envio"
-
-def mostrar_envio_resultado():
-    mostrar_logo()
-    if st.session_state.get("envio_ok"):
-        st.success("✅ La entrevista se ha enviado correctamente a Monday.")
-    else:
-        st.error("❌ Hubo un problema al enviar la entrevista a Monday.")
-
-def main():
-    if "pagina_actual" not in st.session_state:
-        st.session_state.pagina_actual = "login"
-    pagina = st.session_state.pagina_actual
-    if pagina == "login":
-        login()
-    elif pagina == "landing":
-        landing()
-    elif pagina == "datos":
-        formulario_datos()
-    elif pagina == "preguntas":
-        entrevista()
-    elif pagina == "envio":
-        mostrar_envio_resultado()
-
-if __name__ == "__main__":
-    main()
+        print(f"❌ Error al enviar a Monday: {e}")
+        print("❌ Respuesta:", response.text if 'response' in locals() else "No hay respuesta")
+        return False
