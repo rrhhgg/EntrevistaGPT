@@ -1,7 +1,6 @@
 from evaluar_respuestas_con_referencias import evaluar_con_openai_con_referencias
 from respuestas_tipo import RESPUESTAS_TIPO
 
-# Mapeo de columnas por rol y tipo
 ID_COLUMNAS = {
     "generales": {
         "puntuacion": [
@@ -33,20 +32,26 @@ def generar_column_values_con_evaluacion(preguntas_generales, preguntas_especifi
 
     for i, pregunta in enumerate(preguntas_generales):
         respuesta = respuestas[i]
-        tipo = "generales"
-        puntuacion, evaluacion = evaluar_con_openai_con_referencias(
-            respuesta, pregunta, RESPUESTAS_TIPO[rol].get(pregunta, []), rol
-        )
-        column_values[ID_COLUMNAS[tipo]["puntuacion"][i]] = puntuacion
-        column_values[ID_COLUMNAS[tipo]["evaluacion"][i]] = evaluacion
+        respuestas_tipo = RESPUESTAS_TIPO.get(rol, {}).get(pregunta, [])
+        if respuestas_tipo:
+            puntuacion, evaluacion = evaluar_con_openai_con_referencias(
+                respuesta, pregunta, respuestas_tipo, rol
+            )
+        else:
+            puntuacion, evaluacion = 0, "No se pudo evaluar: faltan respuestas tipo para esta pregunta."
+        column_values[ID_COLUMNAS["generales"]["puntuacion"][i]] = puntuacion
+        column_values[ID_COLUMNAS["generales"]["evaluacion"][i]] = evaluacion
 
     for j, pregunta in enumerate(preguntas_especificas):
         respuesta = respuestas[j + total_preguntas_generales]
-        tipo = rol
-        puntuacion, evaluacion = evaluar_con_openai_con_referencias(
-            respuesta, pregunta, RESPUESTAS_TIPO[rol].get(pregunta, []), rol
-        )
-        column_values[ID_COLUMNAS[tipo]["puntuacion"][j]] = puntuacion
-        column_values[ID_COLUMNAS[tipo]["evaluacion"][j]] = evaluacion
+        respuestas_tipo = RESPUESTAS_TIPO.get(rol, {}).get(pregunta, [])
+        if respuestas_tipo:
+            puntuacion, evaluacion = evaluar_con_openai_con_referencias(
+                respuesta, pregunta, respuestas_tipo, rol
+            )
+        else:
+            puntuacion, evaluacion = 0, "No se pudo evaluar: faltan respuestas tipo para esta pregunta."
+        column_values[ID_COLUMNAS[rol]["puntuacion"][j]] = puntuacion
+        column_values[ID_COLUMNAS[rol]["evaluacion"][j]] = evaluacion
 
     return column_values
