@@ -2,6 +2,9 @@ import requests
 import os
 
 MONDAY_API_KEY = os.getenv("MONDAY_API_KEY")
+if MONDAY_API_KEY is None:
+    raise ValueError("❌ No se encontró MONDAY_API_KEY. Asegúrate de haberlo añadido en los secretos de Streamlit.")
+
 BOARD_ID = 1939525964
 
 HEADERS = {
