@@ -1,150 +1,194 @@
-
 import streamlit as st
-from evaluar_respuestas_con_referencias import evaluar_respuesta
+import time
 
-# Datos de entrevistadores
 ENTREVISTADORES = {
-    "Keko": "keko@grupogomez.es",
-    "Maika": "maika@grupogomez.es",
-    "Alba": "alba@grupogomez.es",
-    "Cristina": "cristina@grupogomez.es",
-    "Maria": "maria@grupogomez.es",
-    "Vlad": "vlad@grupogomez.es",
-    "Julio": "julio@grupogomez.es",
-    "Vanesa": "vanesa@grupogomez.es",
-    "Mada": "mada@grupogomez.es"
+    "Keko": "frmichelin@grupogomez.es",
+    "Maika": "m.demiguel@grupogomez.es",
+    "Alba": "a.alandi@grupogomez.es",
+    "Cristina": "c.domenech@grupogomez.es",
+    "Maria": "maria.martin@grupogomez.es",
+    "Vlad": "v.cobusneanu@grupogomez.es",
+    "Julio": "j.barzola@grupogomez.es",
+    "Vanesa": "v.gomez@grupogomez.es",
+    "Mada": "mada.broton@grupogomez.es"
 }
 
-# Preguntas generales
-PREGUNTAS_GENERALES = [
-    "¿Dónde vives actualmente y cómo sueles desplazarte al trabajo?\nEn caso de utilizar transporte público, ¿cómo te organizas si sales del local después del último servicio (por ejemplo, fuera del horario del metro)?",
-    "¿Tienes disponibilidad para trabajar por la noche y los fines de semana?\n¿Podrías desplazarte sin problema a cualquiera de nuestros locales en esos horarios?",
-    "¿Qué idiomas hablas y cuál es tu nivel en cada uno de ellos?\nPuedes mencionar si tienes fluidez al hablar, escribir o entender, y si los utilizas habitualmente en el trabajo.",
-    "¿Qué es lo que más te gustaba y lo que menos de tu último trabajo?\n¿Por qué motivo decidiste dejarlo?",
-    "¿Cómo describirías el ambiente de trabajo en tus empleos anteriores?\n¿Qué tal era tu relación con los compañeros y el equipo?"
+
+PREGUNTAS_COMUNES = [
+    '¿Dónde vives actualmente y cómo sueles desplazarte al trabajo? En caso de utilizar transporte público, ¿cómo te organizas si sales del local después del último servicio (por ejemplo, fuera del horario del metro)?',
+    '¿Tienes disponibilidad para trabajar por la noche y los fines de semana? ¿Podrías desplazarte sin problema a cualquiera de nuestros locales en esos horarios?',
+    '¿Qué idiomas hablas y cuál es tu nivel en cada uno de ellos? Puedes mencionar si tienes fluidez al hablar, escribir o entender, y si los utilizas habitualmente en el trabajo.',
+    '¿Qué es lo que más te gustaba y lo que menos de tu último trabajo? ¿Por qué motivo decidiste dejarlo?',
+    '¿Cómo describirías el ambiente de trabajo en tus empleos anteriores? ¿Qué tal era tu relación con los compañeros y el equipo?'
 ]
 
-# Inicializar estado
-if "pagina" not in st.session_state:
-    st.session_state.pagina = "login"
-if "entrevistador" not in st.session_state:
-    st.session_state.entrevistador = None
-if "entrevista_rol" not in st.session_state:
-    st.session_state.entrevista_rol = None
-if "datos_personales" not in st.session_state:
-    st.session_state.datos_personales = {}
-if "respuestas" not in st.session_state:
-    st.session_state.respuestas = []
-if "puntuaciones" not in st.session_state:
-    st.session_state.puntuaciones = []
-if "evaluaciones" not in st.session_state:
-    st.session_state.evaluaciones = []
-if "pregunta_actual" not in st.session_state:
-    st.session_state.pregunta_actual = 0
-
-# LOGIN
-if st.session_state.pagina == "login":
-    st.title("👤 Selección de entrevistador")
-    entrevistador = st.selectbox("Selecciona tu nombre", list(ENTREVISTADORES.keys()))
-    if st.button("Acceder"):
-        st.session_state.entrevistador = entrevistador
-        st.session_state.pagina = "menu"
-
-# MENÚ PRINCIPAL
-elif st.session_state.pagina == "menu":
-    st.markdown(f"👋 Bienvenid@ **{st.session_state.entrevistador}**")
-    st.markdown("### Selecciona el puesto a entrevistar:")
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("🍽️ Camarero"):
-            st.session_state.entrevista_rol = "Camarero"
-            st.session_state.pagina = "datos"
+PREGUNTAS_POR_ROL = {
+    "camarero": ['Estás atendiendo cuatro mesas que han llegado con poco margen entre ellas. ¿Cómo decides a cuál atender primero?', 'Háblame de una ocasión en la que ayudaste a un compañero que iba atrasado en su trabajo, aunque tú ya habías terminado tus tareas.', 'Cuéntame sobre una ocasión en la que un cliente te dijo que un plato no estaba a su gusto, aunque ya lo había comido casi entero.', 'En el briefing antes del servicio, tu director te indica que estás marcando mal los cubiertos. ¿Qué haces?', 'Estás en el pase y ves que un plato está listo pero nadie lo recoge. No es para tu mesa. ¿Qué haces?', 'Cuéntame sobre una ocasión en la que una mesa ya había pedido lo justo para cenar. ¿Qué hiciste?', 'Has terminado tu servicio y estás a punto de irte. ¿Cómo dejas tu zona de trabajo?', 'Cuéntame sobre una ocasión en la que cometiste un error al tomar una comanda y se lo serviste mal al cliente.']
+}
+def mostrar_logo():
+    col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        if st.button("🔪 Cocinero"):
-            st.session_state.entrevista_rol = "Cocinero"
-            st.session_state.pagina = "datos"
-    with col3:
-        if st.button("👨‍🍳 Jefe de Cocina"):
-            st.session_state.entrevista_rol = "Jefe de Cocina"
-            st.session_state.pagina = "datos"
+        st.image("logo_gastronomico.png", width=300)
 
-    col4, col5, col6 = st.columns(3)
-    with col4:
-        if st.button("👔 Director"):
-            st.session_state.entrevista_rol = "Director"
-            st.session_state.pagina = "datos"
-    with col5:
-        if st.button("🧼 Friegaplatos"):
-            st.session_state.entrevista_rol = "Friegaplatos"
-            st.session_state.pagina = "datos"
-    with col6:
-        if st.button("🚚 Repartidor"):
-            st.session_state.entrevista_rol = "Repartidor"
-            st.session_state.pagina = "datos"
-    if st.button("👩‍✈️ Hostess"):
-        st.session_state.entrevista_rol = "Hostess"
-        st.session_state.pagina = "datos"
+def login():
+    mostrar_logo()
+    st.title("Login de Entrevistador")
+    seleccion = st.selectbox("Selecciona tu nombre", list(ENTREVISTADORES.keys()))
+    if st.button("Entrar"):
+        st.session_state.entrevistador = seleccion
+        st.session_state.email = ENTREVISTADORES[seleccion]
+        st.session_state.pagina_actual = "landing"
 
-# DATOS PERSONALES
-elif st.session_state.pagina == "datos":
-    st.title(f"📋 Datos del candidato para el puesto de {st.session_state.entrevista_rol}")
-    nombre = st.text_input("Nombre y apellidos")
-    telefono = st.text_input("Teléfono")
-    correo = st.text_input("Correo electrónico")
-    col1, col2 = st.columns(2)
+def logout():
+    col1, col2 = st.columns([3, 1])
     with col1:
-        calle = st.text_input("Calle")
-        numero = st.text_input("Número")
+        st.markdown(f"### Bienvenid@ {st.session_state.entrevistador}")
     with col2:
-        puerta = st.text_input("Puerta")
-        cp = st.text_input("Código postal")
-    ciudad = st.text_input("Ciudad")
+        if st.button("Cerrar sesión 🔒"):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.session_state.pagina_actual = "login"
 
-    if st.button("Comenzar entrevista"):
-        st.session_state.datos_personales = {
-            "nombre": nombre,
-            "telefono": telefono,
-            "correo": correo,
-            "direccion": f"{calle}, {numero}, {puerta}, {cp}, {ciudad}"
-        }
-        st.session_state.pagina = "entrevista"
+def landing():
+    mostrar_logo()
+    logout()
+    st.markdown("### Selecciona el tipo de entrevista que deseas realizar:")
+    roles = {
+        "🍽️ Camarero": "camarero"
+    }
+    cols = st.columns(4)
+    i = 0
+    for nombre, clave in roles.items():
+        with cols[i % 4]:
+            if st.button(nombre, key=clave):
+                st.session_state.rol = clave
+                st.session_state.pagina_actual = "datos"
+                return
+        i += 1
 
-# ENTREVISTA
-elif st.session_state.pagina == "entrevista":
-    idx = st.session_state.pregunta_actual
-    if idx < len(PREGUNTAS_GENERALES):
-        st.markdown(f"**Pregunta {idx+1}:**")
-        pregunta_formateada = PREGUNTAS_GENERALES[idx].replace("\n", "  
-")
-        st.markdown(pregunta_formateada)
-        respuesta = st.text_area("Tu respuesta", key=f"respuesta_{idx}", value="", placeholder="Escribe tu respuesta...")
+def formulario_datos():
+    mostrar_logo()
+    st.markdown("### 📋 Datos del candidato")
+    with st.form("form_datos"):
+        st.session_state.nombre = st.text_input("Nombre completo")
+        st.session_state.telefono = st.text_input("Teléfono")
+        st.session_state.correo = st.text_input("Correo electrónico")
+        st.session_state.via = st.selectbox("Tipo de vía", ["Calle", "Avenida", "Plaza", "Camino"])
+        st.session_state.nombre_via = st.text_input("Nombre de la vía")
+        st.session_state.numero = st.text_input("Número")
+        st.session_state.puerta = st.text_input("Puerta")
+        st.session_state.cp = st.text_input("Código postal")
+        st.session_state.ciudad = st.text_input("Ciudad")
+        if st.form_submit_button("Comenzar entrevista"):
+            preguntas_especificas = PREGUNTAS_POR_ROL.get(st.session_state.rol, [])
+            st.session_state.preguntas = PREGUNTAS_COMUNES + preguntas_especificas
+            st.session_state.pagina_pregunta = 0
+            st.session_state.respuestas = []
+            st.session_state.tiempos = []
+            st.session_state.start_time = time.time()
+            st.session_state.pagina_actual = "preguntas"
 
-        if st.button("Siguiente"):
-            resultado = evaluar_respuesta(
-                pregunta=PREGUNTAS_GENERALES[idx],
-                respuesta_usuario=respuesta,
-                rol=st.session_state.entrevista_rol,
-                respuesta_tipo=None
-            )
-            st.session_state.respuestas.append(respuesta)
-            st.session_state.puntuaciones.append(resultado["puntuacion"])
-            st.session_state.evaluaciones.append(resultado["evaluacion"])
-            st.session_state.pregunta_actual += 1
-            st.experimental_rerun()
-
+def entrevista():
+    mostrar_logo()
+    preguntas = st.session_state.preguntas
+    pagina = st.session_state.pagina_pregunta
+    if pagina >= len(preguntas):
+        mostrar_resultados()
+        return
+    pregunta = preguntas[pagina]
+    st.markdown(f"### Pregunta {pagina + 1} de {len(preguntas)}")
+    st.write("⏱️ Tienes 120 segundos para responder.")
+    respuesta = st.text_area(pregunta, key=f"respuesta_{pagina}")
+    if "respuesta_tiempo_inicio" not in st.session_state:
+        st.session_state.respuesta_tiempo_inicio = time.time()
+    tiempo_transcurrido = int(time.time() - st.session_state.respuesta_tiempo_inicio)
+    avanzar = False
+    if tiempo_transcurrido >= 120:
+        avanzar = True
     else:
-        st.session_state.pagina = "final"
+        if st.button("Enviar respuesta"):
+            avanzar = True
+    if avanzar:
+        st.session_state.respuestas.append(respuesta)
+        st.session_state.tiempos.append(min(tiempo_transcurrido, 120))
+        st.session_state.pagina_pregunta += 1
+        st.session_state.respuesta_tiempo_inicio = time.time()
 
-# RESULTADO FINAL
-elif st.session_state.pagina == "final":
-    st.success("✅ Entrevista finalizada")
-    st.markdown(f"**Candidato:** {st.session_state.datos_personales['nombre']}")
-    st.markdown(f"**Puesto:** {st.session_state.entrevista_rol}")
-    st.markdown("---")
-    for i, pregunta in enumerate(PREGUNTAS_GENERALES):
-        st.markdown(f"**{pregunta.replace('\n', '  
-')}**")
-        st.markdown(f"- Respuesta: {st.session_state.respuestas[i]}")
-        st.markdown(f"- Puntuación: {st.session_state.puntuaciones[i]}")
-        st.markdown(f"- Evaluación: {st.session_state.evaluaciones[i]}")
+from evaluar_respuestas_con_referencias import evaluar_con_openai_con_referencias
+from respuestas_tipo import RESPUESTAS_TIPO
+from generar_column_values import generar_column_values_con_evaluacion
+from enviar_a_monday import enviar_resultados_monday
+
+def mostrar_resultados():
+    mostrar_logo()
+    st.markdown("### 📝 Resultados de la Entrevista")
+
+    preguntas = st.session_state.preguntas
+    respuestas = st.session_state.respuestas
+    rol = st.session_state.rol
+
+    # Separar preguntas generales y específicas
+    preguntas_generales = preguntas[:5]
+    preguntas_especificas = preguntas[5:]
+
+    evaluaciones = []
+    total_puntos = 0
+
+    for i, pregunta in enumerate(preguntas_generales):
+        respuesta = respuestas[i]
+        tipo = "generales"
+        respuestas_tipo = RESPUESTAS_TIPO.get(rol, {}).get(pregunta, [])
+        if respuestas_tipo:
+            puntuacion, justificacion = evaluar_con_openai_con_referencias(respuesta, pregunta, respuestas_tipo, rol)
+        else:
+            puntuacion, justificacion = 0, "No se pudo evaluar: faltan respuestas tipo para esta pregunta."
+        total_puntos += puntuacion
+        st.markdown(f"**Pregunta {i+1}:** Puntuación: {puntuacion}/10")
+        st.markdown(f"Justificación: {justificacion}")
         st.markdown("---")
+
+    for j, pregunta in enumerate(preguntas_especificas):
+        respuesta = respuestas[j + len(preguntas_generales)]
+        tipo = rol
+        respuestas_tipo = RESPUESTAS_TIPO.get(rol, {}).get(pregunta, [])
+        if respuestas_tipo:
+            puntuacion, justificacion = evaluar_con_openai_con_referencias(respuesta, pregunta, respuestas_tipo, rol)
+        else:
+            puntuacion, justificacion = 0, "No se pudo evaluar: faltan respuestas tipo para esta pregunta."
+        total_puntos += puntuacion
+        st.markdown(f"**Pregunta {j+1+len(preguntas_generales)}:** Puntuación: {puntuacion}/10")
+        st.markdown(f"Justificación: {justificacion}")
+        st.markdown("---")
+
+    st.markdown(f"**⏱️ Tiempo total empleado:** {sum(st.session_state.tiempos)} segundos")
+    st.markdown(f"**✅ Puntuación total:** {total_puntos} puntos")
+
+    # Evaluación real con OpenAI para envío
+    column_values = generar_column_values_con_evaluacion(
+        preguntas_generales,
+        preguntas_especificas,
+        respuestas,
+        rol
+    )
+
+    enviado, mensaje = enviar_resultados_monday(st.session_state, column_values)
+    if enviado:
+        st.success(mensaje)
+    else:
+        st.error(mensaje)
+
+def main():
+    if "pagina_actual" not in st.session_state:
+        st.session_state.pagina_actual = "login"
+    pagina = st.session_state.pagina_actual
+    if pagina == "login":
+        login()
+    elif pagina == "landing":
+        landing()
+    elif pagina == "datos":
+        formulario_datos()
+    elif pagina == "preguntas":
+        entrevista()
+
+if __name__ == "__main__":
+    main()
