@@ -12,6 +12,17 @@ def evaluar_con_openai_con_referencias(respuesta, pregunta, respuestas_tipo, rol
     buenas = respuestas_tipo.get("buenas", [])
     malas = respuestas_tipo.get("malas", [])
 
+    def formato_ejemplo(lista):
+        resultado = ""
+        for r in lista:
+            linea = f'- {r["texto"]}'
+            if r.get("explicacion"):
+                linea += f' /{r["explicacion"]}/'
+            if r.get("puntuacion") is not None:
+                linea += f' ({r["puntuacion"]})'
+            resultado += limpiar(linea) + "\n"
+        return resultado.strip()
+
     prompt = f"""Eres un selector experto de personal en hostelería.
 
 Estás evaluando la respuesta de un candidato al puesto de {limpiar(rol)}.
@@ -23,12 +34,12 @@ Respuesta del candidato:
 {limpiar(respuesta)}
 
 Respuestas tipo buenas esperadas:
-- {'\n- '.join([limpiar(r) for r in buenas])}
+{formato_ejemplo(buenas)}
 
 Respuestas tipo malas comunes:
-- {'\n- '.join([limpiar(r) for r in malas])}
+{formato_ejemplo(malas)}
 
-Evalúa la respuesta del candidato teniendo en cuenta tanto las respuestas tipo como la información adicional. 
+Evalúa la respuesta del candidato teniendo en cuenta las respuestas tipo, sus explicaciones, las puntuaciones orientativas y el contexto. 
 
 Devuelve:
 1. Una puntuación del 0 al 10 (solo el número).
