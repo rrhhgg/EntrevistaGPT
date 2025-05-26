@@ -114,8 +114,9 @@ elif st.session_state.pagina == "entrevista":
     idx = st.session_state.pregunta_actual
     if idx < len(PREGUNTAS_GENERALES):
         st.markdown(f"**Pregunta {idx+1}:**")
-        st.markdown(PREGUNTAS_GENERALES[idx].replace("\n", "  
-"))
+        pregunta_formateada = PREGUNTAS_GENERALES[idx].replace("\n", "  
+")
+        st.markdown(pregunta_formateada)
         respuesta = st.text_area("Tu respuesta", key=f"respuesta_{idx}", value="", placeholder="Escribe tu respuesta...")
 
         if st.button("Siguiente"):
