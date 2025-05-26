@@ -136,9 +136,9 @@ def mostrar_resultados():
 
     
 for i, pregunta in enumerate(preguntas_generales):
-
-    st.code(f"PREGUNTA ACTUAL: {pregunta}")
-    st.code(f"ENCONTRADA EN RESPUESTAS_TIPO: {pregunta in RESPUESTAS_TIPO.get(rol, {})}")        respuesta = respuestas[i]
+        st.code(f"PREGUNTA ACTUAL: {pregunta}")
+        st.code(f"ENCONTRADA EN RESPUESTAS_TIPO: {pregunta in RESPUESTAS_TIPO.get(rol, {})}")
+        respuesta = respuestas[i]
         tipo = "generales"
         respuestas_tipo = RESPUESTAS_TIPO.get(rol, {}).get(pregunta, [])
         if respuestas_tipo:
