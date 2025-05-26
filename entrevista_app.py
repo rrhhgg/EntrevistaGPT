@@ -91,6 +91,7 @@ def formulario_datos():
 
 
 
+
 def entrevista():
     mostrar_logo()
     preguntas = st.session_state.preguntas
@@ -122,14 +123,12 @@ def entrevista():
             st.session_state.respuesta_confirmada = True
             st.session_state.respuestas.append(respuesta.strip())
             st.session_state.tiempos.append(tiempo_maximo)
-            st.experimental_rerun()
     else:
         st.success("✅ Respuesta cargada correctamente.")
         if st.button("➡️ Siguiente pregunta"):
             st.session_state.pagina_pregunta += 1
             st.session_state.respuesta_confirmada = False
             st.session_state.pop("respuesta_tiempo_inicio", None)
-            st.experimental_rerun()
 
 
 def mostrar_resultados():
