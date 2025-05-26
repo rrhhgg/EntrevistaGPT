@@ -14,7 +14,6 @@ ENTREVISTADORES = {
 }
 
 
-
 PREGUNTAS_COMUNES = [
     '¿Dónde vives actualmente y cómo sueles desplazarte al trabajo? En caso de utilizar transporte público, ¿cómo te organizas si sales del local después del último servicio (por ejemplo, fuera del horario del metro)?',
     '¿Tienes disponibilidad para trabajar por la noche y los fines de semana? ¿Podrías desplazarte sin problema a cualquiera de nuestros locales en esos horarios?',
@@ -135,8 +134,11 @@ def mostrar_resultados():
     evaluaciones = []
     total_puntos = 0
 
-    for i, pregunta in enumerate(preguntas_generales):
-        respuesta = respuestas[i]
+    
+for i, pregunta in enumerate(preguntas_generales):
+
+    st.code(f"PREGUNTA ACTUAL: {pregunta}")
+    st.code(f"ENCONTRADA EN RESPUESTAS_TIPO: {pregunta in RESPUESTAS_TIPO.get(rol, {})}")        respuesta = respuestas[i]
         tipo = "generales"
         respuestas_tipo = RESPUESTAS_TIPO.get(rol, {}).get(pregunta, [])
         if respuestas_tipo:
@@ -147,6 +149,7 @@ def mostrar_resultados():
         st.markdown(f"**Pregunta {i+1}:** Puntuación: {puntuacion}/10")
         st.markdown(f"Justificación: {justificacion}")
         st.markdown("---")
+
 
     for j, pregunta in enumerate(preguntas_especificas):
         respuesta = respuestas[j + len(preguntas_generales)]
