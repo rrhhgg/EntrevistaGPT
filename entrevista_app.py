@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+from respuestas_tipo import RESPUESTAS_TIPO
 
 ENTREVISTADORES = {
     "Keko": "frmichelin@grupogomez.es",
