@@ -1,79 +1,44 @@
+
 import openai
-import os
+import json
+import re
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+def evaluar_respuesta(pregunta, respuesta_usuario, rol, respuesta_tipo=None):
+    prompt = f"""Eres un selector experto de personal en hostelería.
 
-def evaluar_con_openai_con_referencias(respuesta_candidato, pregunta, respuestas_tipo, rol):
-    prompt = f"""
-Eres un evaluador de entrevistas de selección para el puesto de {rol.upper()}.
-
-A continuación, te doy una pregunta, cinco respuestas tipo (del 1 al 5) y la respuesta de un candidato.
-
-Tu tarea es:
-
-1. Analizar la respuesta del candidato.
-2. Compararla con las cinco respuestas tipo.
-3. Elegir cuál se le parece más (del 1 al 5).
-4. Asignar la puntuación correspondiente:
-   - Respuesta 1: 10 puntos
-   - Respuesta 2: 8 puntos
-   - Respuesta 3: 6 puntos
-   - Respuesta 4: 4 puntos
-   - Respuesta 5: 2 puntos
-5. Justificar brevemente tu decisión.
-
----
+Analiza la siguiente respuesta de un candidato al rol de {rol}.
 
 Pregunta: {pregunta}
+Respuesta del candidato: {respuesta_usuario}
+Respuesta esperada o ideal (si aplica): {respuesta_tipo if respuesta_tipo else "No disponible"}
 
-Respuestas tipo:
-1. {respuestas_tipo[0]}
-2. {respuestas_tipo[1]}
-3. {respuestas_tipo[2]}
-4. {respuestas_tipo[3]}
-5. {respuestas_tipo[4]}
-
----
-
-Respuesta del candidato:
-{respuesta_candidato}
-
----
-
-Devuélveme:
-- La puntuación (solo el número).
-- El número de la respuesta tipo más similar.
-- Una breve justificación.
+Devuelve en formato JSON dos cosas:
+{{
+  "puntuacion": número del 0 al 10 según la calidad de la respuesta,
+  "evaluacion": una breve evaluación escrita de máximo 2 líneas
+}}
 """
 
     try:
-        response = openai.ChatCompletion.create(
+        completion = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.3,
-            max_tokens=300
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3
         )
+        content = completion["choices"][0]["message"]["content"]
 
-        content = response.choices[0].message["content"]
-        puntuacion = None
-        justificacion = ""
-        tipo_mas_parecido = ""
-
-        for line in content.splitlines():
-            if line.lower().startswith("puntuación:"):
-                puntuacion = int(line.split(":")[1].strip())
-            elif line.lower().startswith("evaluación:"):
-                justificacion = line.split(":", 1)[1].strip()
-            elif line.lower().startswith("el número de la respuesta tipo"):
-                tipo_mas_parecido = line.split(":")[1].strip()
-
-        if puntuacion is None:
-            puntuacion = 0
-            justificacion = "No se pudo interpretar una puntuación."
-
-        return puntuacion, justificacion
+        # Buscar el JSON dentro del texto
+        match = re.search(r"\{.*\}", content, re.DOTALL)
+        if match:
+            return json.loads(match.group())
+        else:
+            return {
+                "puntuacion": 0,
+                "evaluacion": "⚠️ No se pudo interpretar la respuesta del modelo"
+            }
 
     except Exception as e:
-        return 0, f"❌ Error al evaluar con IA: {str(e)}"
+        return {
+            "puntuacion": 0,
+            "evaluacion": f"⚠️ Error al evaluar: {str(e)}"
+        }
