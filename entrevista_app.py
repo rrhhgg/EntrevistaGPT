@@ -135,7 +135,7 @@ def mostrar_resultados():
     total_puntos = 0
 
     
-for i, pregunta in enumerate(preguntas_generales):
+    for i, pregunta in enumerate(preguntas_generales):
         st.code(f"PREGUNTA ACTUAL: {pregunta}")
         st.code(f"ENCONTRADA EN RESPUESTAS_TIPO: {pregunta in RESPUESTAS_TIPO.get(rol, {})}")
         respuesta = respuestas[i]
@@ -149,6 +149,7 @@ for i, pregunta in enumerate(preguntas_generales):
         st.markdown(f"**Pregunta {i+1}:** Puntuación: {puntuacion}/10")
         st.markdown(f"Justificación: {justificacion}")
         st.markdown("---")
+
 
 
     for j, pregunta in enumerate(preguntas_especificas):
