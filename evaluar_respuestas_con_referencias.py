@@ -3,28 +3,36 @@ import openai
 import json
 import re
 
-def evaluar_con_openai_con_referencias(respuesta, pregunta, respuestas_tipo, rol):
+def evaluar_con_openai_con_referencias(respuesta, pregunta, respuestas_tipo, rol, info=None):
+    contexto = f"Información adicional relevante para esta pregunta: {info}" if info else "Sin información adicional relevante."
+
     prompt = f"""Eres un selector experto de personal en hostelería.
 
 Estás evaluando la respuesta de un candidato al puesto de {rol}.
 
 Pregunta: {pregunta}
-Respuesta del candidato: {respuesta}
+{contexto}
 
-Respuestas tipo esperadas:
-- {'\n- '.join(respuestas_tipo)}
+Respuesta del candidato:
+{respuesta}
 
-Evalúa la respuesta del candidato en base a las respuestas tipo y los criterios del puesto.
+Respuestas tipo buenas esperadas:
+- {'\n- '.join(respuestas_tipo.get('buenas', []))}
+
+Respuestas tipo malas comunes:
+- {'\n- '.join(respuestas_tipo.get('malas', []))}
+
+Evalúa la respuesta del candidato teniendo en cuenta tanto las respuestas tipo como la información adicional. 
 
 Devuelve:
-1. Una puntuación del 0 al 10.
-2. Una justificación breve (1 o 2 frases).
+1. Una puntuación del 0 al 10 (solo el número).
+2. Una justificación breve (máximo 2 líneas).
 
-Formato:
-{{
-  "puntuacion": número entero,
+Formato de salida:
+{
+  "puntuacion": número,
   "justificacion": "texto"
-}}
+}
 """
 
     try:
