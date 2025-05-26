@@ -88,36 +88,47 @@ def formulario_datos():
             st.session_state.start_time = time.time()
             st.session_state.pagina_actual = "preguntas"
 
+
 def entrevista():
     mostrar_logo()
     preguntas = st.session_state.preguntas
     pagina = st.session_state.pagina_pregunta
+
     if pagina >= len(preguntas):
         mostrar_resultados()
         return
+
     pregunta = preguntas[pagina]
     st.markdown(f"### Pregunta {pagina + 1} de {len(preguntas)}")
     st.write("⏱️ Tienes 120 segundos para responder.")
-    respuesta = st.text_area(pregunta, key=f"respuesta_{pagina}")
+
+    # Cargar respuesta anterior si existía, si no, dejar vacío
+    respuesta_key = f"respuesta_{pagina}"
+    if respuesta_key not in st.session_state:
+        st.session_state[respuesta_key] = ""
+
+    respuesta = st.text_area(pregunta, key=respuesta_key)
+
     if "respuesta_tiempo_inicio" not in st.session_state:
         st.session_state.respuesta_tiempo_inicio = time.time()
+
     tiempo_transcurrido = int(time.time() - st.session_state.respuesta_tiempo_inicio)
+
     avanzar = False
     if tiempo_transcurrido >= 120:
         avanzar = True
     else:
         if st.button("Enviar respuesta"):
             avanzar = True
+
     if avanzar:
-        st.session_state.respuestas.append(respuesta)
+        # Guardar respuesta y tiempo
+        st.session_state.respuestas.append(st.session_state[respuesta_key])
         st.session_state.tiempos.append(min(tiempo_transcurrido, 120))
         st.session_state.pagina_pregunta += 1
         st.session_state.respuesta_tiempo_inicio = time.time()
+        st.experimental_rerun()
 
-from evaluar_respuestas_con_referencias import evaluar_con_openai_con_referencias
-from respuestas_tipo import RESPUESTAS_TIPO
-from generar_column_values import generar_column_values_con_evaluacion
-from enviar_a_monday import enviar_resultados_monday
 
 def mostrar_resultados():
     mostrar_logo()
