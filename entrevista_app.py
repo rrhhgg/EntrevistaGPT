@@ -22,31 +22,34 @@ if "puntuaciones" not in st.session_state:
     st.session_state.puntuaciones = []
 if "evaluaciones" not in st.session_state:
     st.session_state.evaluaciones = []
-if "evaluada" not in st.session_state:
-    st.session_state.evaluada = False
+if "respuesta_temp" not in st.session_state:
+    st.session_state.respuesta_temp = ""
 
 pagina = st.session_state.pagina_actual
 
 if pagina < len(preguntas_generales):
     pregunta_actual = preguntas_generales[pagina]
     st.markdown(f"**Pregunta {pagina+1}:** {pregunta_actual}")
-    respuesta_usuario = st.text_area("Tu respuesta", key=f"respuesta_{pagina}")
 
-    if st.button("Siguiente") and respuesta_usuario.strip() != "":
-        st.session_state.respuestas.append(respuesta_usuario)
+    respuesta_input = st.text_area(
+        "Tu respuesta",
+        key=f"respuesta_p{pagina}",
+        value="",
+        placeholder="Escribe tu respuesta aquí..."
+    )
 
+    if st.button("Siguiente") and respuesta_input.strip() != "":
         resultado = evaluar_respuesta(
             pregunta=pregunta_actual,
-            respuesta_usuario=respuesta_usuario,
+            respuesta_usuario=respuesta_input,
             rol="Camarero",
             respuesta_tipo=None
         )
 
+        st.session_state.respuestas.append(respuesta_input)
         st.session_state.puntuaciones.append(resultado["puntuacion"])
         st.session_state.evaluaciones.append(resultado["evaluacion"])
-
         st.session_state.pagina_actual += 1
-        st.session_state.evaluada = False  # Reset para la siguiente pregunta
 
 elif pagina == len(preguntas_generales):
     st.success("✅ Entrevista finalizada")
