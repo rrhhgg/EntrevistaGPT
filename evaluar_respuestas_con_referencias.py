@@ -4,23 +4,29 @@ import json
 import re
 
 def evaluar_con_openai_con_referencias(respuesta, pregunta, respuestas_tipo, rol, info=None):
-    contexto = f"Información adicional relevante para esta pregunta: {info}" if info else "Sin información adicional relevante."
+    def limpiar(texto):
+        return texto.replace("{", "{{").replace("}", "}}").replace('"', '\"').replace("\n", " ").strip()
+
+    contexto = f"Información adicional relevante para esta pregunta: {limpiar(info)}" if info else "Sin información adicional relevante."
+
+    buenas = respuestas_tipo.get("buenas", [])
+    malas = respuestas_tipo.get("malas", [])
 
     prompt = f"""Eres un selector experto de personal en hostelería.
 
-Estás evaluando la respuesta de un candidato al puesto de {rol}.
+Estás evaluando la respuesta de un candidato al puesto de {limpiar(rol)}.
 
-Pregunta: {pregunta}
+Pregunta: {limpiar(pregunta)}
 {contexto}
 
 Respuesta del candidato:
-{respuesta}
+{limpiar(respuesta)}
 
 Respuestas tipo buenas esperadas:
-- {'\n- '.join(respuestas_tipo.get('buenas', []))}
+- {'\n- '.join([limpiar(r) for r in buenas])}
 
 Respuestas tipo malas comunes:
-- {'\n- '.join(respuestas_tipo.get('malas', []))}
+- {'\n- '.join([limpiar(r) for r in malas])}
 
 Evalúa la respuesta del candidato teniendo en cuenta tanto las respuestas tipo como la información adicional. 
 
@@ -29,10 +35,10 @@ Devuelve:
 2. Una justificación breve (máximo 2 líneas).
 
 Formato de salida:
-{
+{{
   "puntuacion": número,
   "justificacion": "texto"
-}
+}}
 """
 
     try:
