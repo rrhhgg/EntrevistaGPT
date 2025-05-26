@@ -156,7 +156,7 @@ def mostrar_resultados():
         tipo = "generales"
         respuestas_tipo = RESPUESTAS_TIPO.get(rol, {}).get(pregunta, [])
         if respuestas_tipo:
-            puntuacion, justificacion = evaluar_con_openai_con_referencias(respuesta, pregunta, respuestas_tipo, rol)
+            puntuacion, justificacion = evaluar_con_openai_con_referencias(respuesta, pregunta, RESPUESTAS_TIPO.get(rol, {}).get(pregunta, {}), rol, RESPUESTAS_TIPO.get(rol, {}).get(pregunta, {}).get('info'))
         else:
             puntuacion, justificacion = 0, "No se pudo evaluar: faltan respuestas tipo para esta pregunta."
         total_puntos += puntuacion
@@ -171,7 +171,7 @@ def mostrar_resultados():
         tipo = rol
         respuestas_tipo = RESPUESTAS_TIPO.get(rol, {}).get(pregunta, [])
         if respuestas_tipo:
-            puntuacion, justificacion = evaluar_con_openai_con_referencias(respuesta, pregunta, respuestas_tipo, rol)
+            puntuacion, justificacion = evaluar_con_openai_con_referencias(respuesta, pregunta, RESPUESTAS_TIPO.get(rol, {}).get(pregunta, {}), rol, RESPUESTAS_TIPO.get(rol, {}).get(pregunta, {}).get('info'))
         else:
             puntuacion, justificacion = 0, "No se pudo evaluar: faltan respuestas tipo para esta pregunta."
         total_puntos += puntuacion
