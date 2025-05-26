@@ -89,6 +89,8 @@ def formulario_datos():
             st.session_state.pagina_actual = "preguntas"
 
 
+
+
 def entrevista():
     mostrar_logo()
     preguntas = st.session_state.preguntas
@@ -102,32 +104,32 @@ def entrevista():
     st.markdown(f"### Pregunta {pagina + 1} de {len(preguntas)}")
     st.write("⏱️ Tienes 120 segundos para responder.")
 
-    # Cargar respuesta anterior si existía, si no, dejar vacío
     respuesta_key = f"respuesta_{pagina}"
     if respuesta_key not in st.session_state:
         st.session_state[respuesta_key] = ""
+    if "respuesta_tiempo_inicio" not in st.session_state:
+        st.session_state.respuesta_tiempo_inicio = time.time()
+    if "respuesta_confirmada" not in st.session_state:
+        st.session_state.respuesta_confirmada = False
 
     respuesta = st.text_area(pregunta, key=respuesta_key)
 
-    if "respuesta_tiempo_inicio" not in st.session_state:
-        st.session_state.respuesta_tiempo_inicio = time.time()
-
     tiempo_transcurrido = int(time.time() - st.session_state.respuesta_tiempo_inicio)
+    tiempo_maximo = min(tiempo_transcurrido, 120)
 
-    avanzar = False
-    if tiempo_transcurrido >= 120:
-        avanzar = True
+    if not st.session_state.respuesta_confirmada:
+        if st.button("✅ Cargar respuesta") and respuesta.strip():
+            st.session_state.respuesta_confirmada = True
+            st.session_state.respuestas.append(respuesta.strip())
+            st.session_state.tiempos.append(tiempo_maximo)
+            st.experimental_rerun()
     else:
-        if st.button("Enviar respuesta"):
-            avanzar = True
-
-    if avanzar:
-        # Guardar respuesta y tiempo
-        st.session_state.respuestas.append(st.session_state[respuesta_key])
-        st.session_state.tiempos.append(min(tiempo_transcurrido, 120))
-        st.session_state.pagina_pregunta += 1
-        st.session_state.respuesta_tiempo_inicio = time.time()
-        st.experimental_rerun()
+        st.success("✅ Respuesta cargada correctamente.")
+        if st.button("➡️ Siguiente pregunta"):
+            st.session_state.pagina_pregunta += 1
+            st.session_state.respuesta_confirmada = False
+            st.session_state.pop("respuesta_tiempo_inicio", None)
+            st.experimental_rerun()
 
 
 def mostrar_resultados():
