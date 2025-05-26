@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+from evaluar_respuestas_con_referencias import evaluar_con_openai_con_referencias
 from respuestas_tipo import RESPUESTAS_TIPO
 
 ENTREVISTADORES = {
