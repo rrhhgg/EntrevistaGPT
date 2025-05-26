@@ -10,7 +10,7 @@ ENTREVISTADORES = {
     "Vlad": "v.cobusneanu@grupogomez.es",
     "Julio": "j.barzola@grupogomez.es",
     "Vanesa": "v.gomez@grupogomez.es",
-    "Mada": "mada.broton@grupogomez.it"
+    "Mada": "mada.broton@grupogomez.es"
 }
 
 

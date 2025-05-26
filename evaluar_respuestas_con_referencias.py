@@ -3,19 +3,27 @@ import openai
 import json
 import re
 
-def evaluar_respuesta(pregunta, respuesta_usuario, rol, respuesta_tipo=None):
+def evaluar_con_openai_con_referencias(respuesta, pregunta, respuestas_tipo, rol):
     prompt = f"""Eres un selector experto de personal en hostelería.
 
-Analiza la siguiente respuesta de un candidato al rol de {rol}.
+Estás evaluando la respuesta de un candidato al puesto de {rol}.
 
 Pregunta: {pregunta}
-Respuesta del candidato: {respuesta_usuario}
-Respuesta esperada o ideal (si aplica): {respuesta_tipo if respuesta_tipo else "No disponible"}
+Respuesta del candidato: {respuesta}
 
-Devuelve en formato JSON dos cosas:
+Respuestas tipo esperadas:
+- {'\n- '.join(respuestas_tipo)}
+
+Evalúa la respuesta del candidato en base a las respuestas tipo y los criterios del puesto.
+
+Devuelve:
+1. Una puntuación del 0 al 10.
+2. Una justificación breve (1 o 2 frases).
+
+Formato:
 {{
-  "puntuacion": número del 0 al 10 según la calidad de la respuesta,
-  "evaluacion": una breve evaluación escrita de máximo 2 líneas
+  "puntuacion": número entero,
+  "justificacion": "texto"
 }}
 """
 
@@ -23,22 +31,15 @@ Devuelve en formato JSON dos cosas:
         completion = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.3
+            temperature=0.2
         )
         content = completion["choices"][0]["message"]["content"]
-
-        # Buscar el JSON dentro del texto
-        match = re.search(r"\{.*\}", content, re.DOTALL)
+        match = re.search(r"\{.*?\}", content, re.DOTALL)
         if match:
-            return json.loads(match.group())
+            resultado = json.loads(match.group())
+            return resultado["puntuacion"], resultado["justificacion"]
         else:
-            return {
-                "puntuacion": 0,
-                "evaluacion": "⚠️ No se pudo interpretar la respuesta del modelo"
-            }
+            return 0, "⚠️ No se pudo interpretar la evaluación del modelo."
 
     except Exception as e:
-        return {
-            "puntuacion": 0,
-            "evaluacion": f"⚠️ Error al evaluar: {str(e)}"
-        }
+        return 0, f"⚠️ Error al evaluar con OpenAI: {str(e)}"
